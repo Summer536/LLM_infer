@@ -21,6 +21,7 @@ enum DataType {
     FP32,
     FP16,
     INT32,
+    INT8,
     UNSUPPORTED
 };
 
@@ -35,6 +36,9 @@ DataType getTensorType()
     }
     else if (std::is_same<T, int>::value || std::is_same<T, const int>::value){
         return INT32;
+    }
+    else if (std::is_same<T, int8_t>::value || std::is_same<T, const int8_t>::value){
+        return INT8;
     } else {
         return UNSUPPORTED;
     }
@@ -84,6 +88,7 @@ struct Tensor {
             {FP32, "FP32"},
             {FP16, "FP16"},
             {INT32, "INT32"},
+            {INT8, "INT8"},
             {UNSUPPORTED, "UNSUPPORTED"}
         };
         return fmtstr("Tensor[where=%s, type=%s, shape=%s]", 
@@ -140,6 +145,7 @@ class TensorWrapper: public Tensor {
                 {FP32, "FP32"},
                 {FP16, "FP16"},
                 {INT32, "INT32"},
+                {INT8, "INT8"},
                 {UNSUPPORTED, "UNSUPPORTED"},
             };
             return fmtstr("Tensor[where=%s, type=%s, shape=%s]", device_str.c_str(), type_to_string.at(dtype).c_str(), vec2str(shape).c_str(), data);

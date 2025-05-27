@@ -131,3 +131,11 @@ template void launchConcatKVCache(TensorWrapper<half> *k_src, // from qkv bias a
                                   TensorWrapper<int> *history_length,
                                   TensorWrapper<half> *k_dst,
                                   TensorWrapper<half> *v_dst);
+
+template void launchConcatKVCache(TensorWrapper<int8_t> *k_src, // from qkv bias and rope
+                                  TensorWrapper<int8_t> *v_src,
+                                  TensorWrapper<int> *layer_id,         // layer offset = layer_id * batchxbeam * max_seq_len * kv_head_num * head_size
+                                  TensorWrapper<int> *cur_query_length, // current epoch or local input length,[batchsize]
+                                  TensorWrapper<int> *history_length,
+                                  TensorWrapper<int8_t> *k_dst,
+                                  TensorWrapper<int8_t> *v_dst);

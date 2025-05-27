@@ -7,8 +7,11 @@
 #include "src/kernels/act_kernel.h"
 // not sure CPU implementation is absolutely right and the GPU kernel is right compared with HF.
 // when you are implementing LLMs inference on CPU, you can reuse the CPU kernel and test its correctness
-// `./test_act 1` to test half GPU kernel
+// Usage:
 // `./test_act` to test fp32 GPU kernel
+// `./test_act fp16` to test half GPU kernel
+// `./test_act int8` to test int8 GPU kernel
+
 template<typename T>
 void CPUSwiGLU(T* input, T* output, int batch_size, int intermedia_size){
     float silu_out = 0.0f;
@@ -22,11 +25,14 @@ void CPUSwiGLU(T* input, T* output, int batch_size, int intermedia_size){
         }
     }
 }
+
 template<typename T>
 bool CheckResult(T* CPUoutput, T* GPUoutput, int output_size) {
+    float tolerance = std::is_same<T, int8_t>::value ? 1e-1f : 1e-6f; // INT8 needs larger tolerance
     for(int i = 0; i < output_size; i++) {
-        if(fabs((float)CPUoutput[i] - (float)GPUoutput[i]) > 1e-6){
+        if(fabs((float)CPUoutput[i] - (float)GPUoutput[i]) > tolerance){
 	    printf("the %dth res is wrong, CPUoutput = %f, GPUoutput = %f\n", i, (float)CPUoutput[i], (float)GPUoutput[i]);
+            return false;
         }
     }
     return true;
@@ -42,9 +48,16 @@ void test_act(int batch_size, int intermedia_size, int input_size , int output_s
     T* d_output;
     h_output = (T*)malloc(sizeof(T) * output_size);
     cudaMalloc((void**)&d_output, sizeof(T) * output_size);
-    for(int i = 0; i < input_size; i++) { // initialize host data
-        h_input[i] = (T)1;
+    
+    // Initialize data based on type
+    for(int i = 0; i < input_size; i++) {
+        if (std::is_same<T, int8_t>::value) {
+            h_input[i] = (T)(i % 20 - 10); // Range [-10, 9] for INT8
+        } else {
+            h_input[i] = (T)(i % 10 / 10.0f); // Range [0, 0.9] for FP32/FP16
+        }
     }
+    
     cudaMemcpy(d_input, h_input, sizeof(T) * input_size, cudaMemcpyHostToDevice);
     DataType type = getTensorType<T>();
     TensorWrapper<T>* input_tensor = new TensorWrapper<T>(GPU, type, {batch_size, 2, intermedia_size}, d_input);
@@ -55,16 +68,18 @@ void test_act(int batch_size, int intermedia_size, int input_size , int output_s
     CPUSwiGLU(h_input, CPU_output, batch_size, intermedia_size);
     bool is_true = CheckResult(CPU_output, h_output, output_size);
     if(is_true){
-        printf("test passed");
+        printf("test passed\n");
     } else {
-        printf("test failed");
+        printf("test failed\n");
     }
 
     free(h_input);
     free(h_output);
     free(CPU_output);
     cudaFree(d_input);
-    cudaFree(d_output);    
+    cudaFree(d_output);
+    delete input_tensor;
+    delete output_tensor;
 }
 
 int main(int argc, char** argv) {
@@ -72,10 +87,23 @@ int main(int argc, char** argv) {
     constexpr int intermedia_size = 11008;
     constexpr int input_size = batch_size * intermedia_size * 2;
     constexpr int output_size = batch_size * intermedia_size;
-    if (argv[1]){
-        test_act<half>(batch_size, intermedia_size, input_size, output_size);
+    
+    if (argc > 1) {
+        std::string arg = argv[1];
+        if (arg == "fp16") {
+            printf("Testing FP16 activation kernel...\n");
+            test_act<half>(batch_size, intermedia_size, input_size, output_size);
+        } else if (arg == "int8") {
+            printf("Testing INT8 activation kernel...\n");
+            test_act<int8_t>(batch_size, intermedia_size, input_size, output_size);
+        } else {
+            printf("Testing FP32 activation kernel...\n");
+            test_act<float>(batch_size, intermedia_size, input_size, output_size);
+        }
     } else {
+        printf("Testing FP32 activation kernel...\n");
         test_act<float>(batch_size, intermedia_size, input_size, output_size);
     }
     
+    return 0;
 }

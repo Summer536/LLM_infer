@@ -62,3 +62,6 @@ template void launchTransposeOutRemovePadding(TensorWrapper<float> *qkv_buf_w_pa
 template void launchTransposeOutRemovePadding(TensorWrapper<half> *qkv_buf_w_pad,
                                               TensorWrapper<int> *padding_offset,
                                               TensorWrapper<half> *qkv_buf_wo_pad_1);
+template void launchTransposeOutRemovePadding(TensorWrapper<int8_t> *qkv_buf_w_pad,
+                                              TensorWrapper<int> *padding_offset,
+                                              TensorWrapper<int8_t> *qkv_buf_wo_pad_1);

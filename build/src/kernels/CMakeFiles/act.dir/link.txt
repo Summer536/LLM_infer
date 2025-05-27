@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libact.a CMakeFiles/act.dir/act_kernel.cu.o
+/usr/bin/ranlib ../../lib/libact.a

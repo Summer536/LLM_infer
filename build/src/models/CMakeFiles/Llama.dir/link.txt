@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libLlama.a CMakeFiles/Llama.dir/llama/llama.cpp.o
+/usr/bin/ranlib ../../lib/libLlama.a

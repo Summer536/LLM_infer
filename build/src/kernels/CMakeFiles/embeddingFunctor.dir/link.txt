@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libembeddingFunctor.a CMakeFiles/embeddingFunctor.dir/input_embedding.cu.o
+/usr/bin/ranlib ../../lib/libembeddingFunctor.a

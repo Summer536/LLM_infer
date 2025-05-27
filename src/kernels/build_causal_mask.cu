@@ -31,3 +31,5 @@ void launchBuildCausalMasks(TensorWrapper<T>*mask,
 }
 
 template void launchBuildCausalMasks(TensorWrapper<float>*mask, TensorWrapper<int>*q_lens, TensorWrapper<int>*k_lens);
+template void launchBuildCausalMasks(TensorWrapper<half>*mask, TensorWrapper<int>*q_lens, TensorWrapper<int>*k_lens);
+template void launchBuildCausalMasks(TensorWrapper<int8_t>*mask, TensorWrapper<int>*q_lens, TensorWrapper<int>*k_lens);

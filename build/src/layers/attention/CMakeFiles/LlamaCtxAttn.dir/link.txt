@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../lib/libLlamaCtxAttn.a CMakeFiles/LlamaCtxAttn.dir/context_attention.cpp.o
+/usr/bin/ranlib ../../../lib/libLlamaCtxAttn.a

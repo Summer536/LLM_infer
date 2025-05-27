@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libqkv_bias_and_rope.a CMakeFiles/qkv_bias_and_rope.dir/qkv_bias_and_RoPE.cu.o
+/usr/bin/ranlib ../../lib/libqkv_bias_and_rope.a

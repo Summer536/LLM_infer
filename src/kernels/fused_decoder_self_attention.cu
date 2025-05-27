@@ -330,6 +330,308 @@ void launchDecoderMaskedMHA(TensorWrapper<T>* qkv_buf,    //输入: qkv的buffer
 #endif
 }
 
+
+//////////////////////////////////这个kernel是FP16类型的融合自注意力///////////////////////////////////////
+template<>
+__global__ void masked_MHA_kernel<half>(half* q, //输入: qkv_buf中的q向量
+                    half* k, //输入: qkv_buf中的k向量
+                    half* v, //输入: qkv_buf中的v向量
+                    half* qkv_bias, //输入: qkv向量的bias
+                    half* k_cache,  //输入: k_cache
+                    half* v_cache,  //输入: v_cache
+                    half* mha_output, //输出: 该融合算子的最终结果
+                    const int batch_size,
+                    const int head_num,
+                    const int kv_head_num,
+                    const int max_seq_len,
+                    const int head_size,
+                    const int step,
+                    int   rotary_embedding_dim, //输入: 旋转编码的维度
+                    float rotary_embedding_base //输入: 旋转编码的base
+                    ){
+
+    //分配GirdDIm(一维的head_num*batch_size个block)  分配BlockDIm(一维head_size个thread)
+    int tid = threadIdx.x;
+    int q_batch_id = blockIdx.x / head_num;
+    int q_head_id = blockIdx.x % head_num;
+
+    int kv_head_id = q_head_id / (head_num / kv_head_num);
+    int kv_batch_id = q_batch_id;
+
+    //求一些偏移量
+    int batch_stride = head_num * head_size;
+    int kv_batch_stride = kv_head_num * head_size;
+    int head_stride = head_size;
+    int q_offset = q_batch_id * batch_stride + q_head_id * head_stride + tid;
+    int k_offset = kv_batch_id * kv_batch_stride + kv_head_id * head_stride + tid;
+
+    ///////////////////////////////////以下是求向量化读取时的offset偏置情况/////////////////////////////////////
+    int vec_size = Vec<half>::size; // = 2 for half2
+    int q_offset_vec = q_batch_id * batch_stride + q_head_id * head_stride + tid * vec_size;
+    int k_offset_vec = kv_batch_id * kv_batch_stride + kv_head_id * head_stride + tid * vec_size;
+
+    //同样的，这里也是求一些偏移量（是对kv cache求的偏移量）
+    int cache_offset = kv_batch_id * kv_head_num * max_seq_len * head_size +
+                        kv_head_id * max_seq_len * head_size + tid * vec_size;
+    int step_stride = head_size;
+
+    float scale = rsqrt(float(head_size));
+
+    using Vec_t = typename Vec<half>::Type; // half2
+    Vec_t qvec, kvec, vvec;
+    const half* q_mem = q;
+    const half* k_mem = k;
+    const half* v_mem = v;
+
+    /////////////////////////////////////////////////////////////////////////Add bias////////////////////////////////////////////////////////////////////
+    if (tid * vec_size < head_size) {
+        qvec = *reinterpret_cast<Vec_t*>(const_cast<half*>(&q_mem[q_offset_vec]));
+        kvec = *reinterpret_cast<Vec_t*>(const_cast<half*>(&k_mem[k_offset_vec]));
+        vvec = *reinterpret_cast<Vec_t*>(const_cast<half*>(&v_mem[k_offset_vec]));
+    }
+
+    ////////////////////////////////////////////////////////////////////  Q*k batchGemm  ////////////////////////////////////////////////////////////////////
+    extern __shared__ char sqk[];
+    half* sq_scalar = reinterpret_cast<half*>(sqk);
+    float* logits = reinterpret_cast<float*>(sq_scalar + head_size);
+    Vec_t* sq = reinterpret_cast<Vec_t*>(sq_scalar);
+    if (tid * vec_size < head_size) {
+        sq[tid] = qvec;
+    }
+    __syncthreads();
+
+    half zero_h = __float2half(0.0f);
+    Vec_t zero_h2 = scalar_cast_vec<Vec_t, half>(zero_h);
+    half2 scale_h2 = scalar_cast_vec<half2, half>(__float2half(scale));
+
+    for(int iter = 0; iter < step; iter++) {
+        Vec_t kvec_qk = tid * vec_size < head_size ? *reinterpret_cast<Vec_t*>(&k_cache[iter * step_stride + cache_offset]) : zero_h2;
+        if (iter == step - 1 && tid * vec_size < head_size) {
+            *reinterpret_cast<Vec_t*>(&k_cache[iter * step_stride + cache_offset]) = kvec;
+            kvec_qk = kvec;
+        }
+
+        // FP16 vectorized computation
+        Vec_t qk = __hmul2(__hmul2(sq[tid], kvec_qk), scale_h2);
+        
+        // Sum across vector elements - convert to float for accumulation
+        float qk_acc = __half2float(qk.x) + __half2float(qk.y);
+
+        float attn_score = blockReduceSum<float>(qk_acc);
+        if(tid == 0) {
+            logits[iter] = attn_score;
+        }
+        __syncthreads();
+    }
+
+    ////////////////////////////////////////////////////////////////////  softmax   //////////////////////////////////////////////////////////////////////////
+    float local_logits = tid < step ? logits[tid] : 0.0f;
+    __shared__ float row_max, fenmu;
+    
+    float block_max = blockReduceMax<float>(local_logits);
+    if (tid == 0){
+        row_max = block_max;
+    }
+    __syncthreads();
+
+    float fenzi = tid < step ? expf(logits[tid] - row_max) : 0.0f;
+    
+    float block_fenmu = blockReduceSum<float>(fenzi);
+    if (tid == 0){
+        fenmu = block_fenmu + 1e-6f;
+    }
+    __syncthreads();
+
+    //求出softmax最终值
+    if(tid < step) {
+        logits[tid] = fenzi / fenmu;
+    }
+    __syncthreads();
+
+    ////////////////////////////////////////////////////////////////////  qk*v batchGemm  ////////////////////////////////////////////////////////////////////
+    if (tid * vec_size < head_size) {
+        Vec_t O = scalar_cast_vec<Vec_t, half>(__float2half(0.0f));
+        for(int iter = 0; iter < step; iter++) {
+            Vec_t vvec_qkv = *reinterpret_cast<Vec_t*>(&v_cache[iter * step_stride + cache_offset]);
+            if (iter == step - 1) {
+                *reinterpret_cast<Vec_t*>(&v_cache[iter * step_stride + cache_offset]) = vvec;
+                vvec_qkv = vvec;
+            }
+
+            // FP16 multiply-accumulate
+            half logit_h = __float2half(logits[iter]);
+            half2 logit_h2 = scalar_cast_vec<half2, half>(logit_h);
+            O = __hfma2(vvec_qkv, logit_h2, O); // O += vvec_qkv * logit
+        }
+        ///////////////////////////////////////////////////////////将最终结果写回到输出结果矩阵中////////////////////////////////////////////////////
+        *reinterpret_cast<Vec_t*>(&mha_output[q_offset_vec]) = O;
+    }
+}
+
+//////////////////////////////////这个kernel是INT8类型的融合自注意力///////////////////////////////////////
+template<>
+__global__ void masked_MHA_kernel<int8_t>(int8_t* q, //输入: qkv_buf中的q向量
+                    int8_t* k, //输入: qkv_buf中的k向量
+                    int8_t* v, //输入: qkv_buf中的v向量
+                    int8_t* qkv_bias, //输入: qkv向量的bias
+                    int8_t* k_cache,  //输入: k_cache
+                    int8_t* v_cache,  //输入: v_cache
+                    int8_t* mha_output, //输出: 该融合算子的最终结果
+                    const int batch_size,
+                    const int head_num,
+                    const int kv_head_num,
+                    const int max_seq_len,
+                    const int head_size,
+                    const int step,
+                    int   rotary_embedding_dim, //输入: 旋转编码的维度
+                    float rotary_embedding_base //输入: 旋转编码的base
+                    ){
+
+    //分配GirdDIm(一维的head_num*batch_size个block)  分配BlockDIm(一维head_size个thread)
+    int tid = threadIdx.x;
+    int q_batch_id = blockIdx.x / head_num;
+    int q_head_id = blockIdx.x % head_num;
+
+    int kv_head_id = q_head_id / (head_num / kv_head_num);
+    int kv_batch_id = q_batch_id;
+
+    //求一些偏移量
+    int batch_stride = head_num * head_size;
+    int kv_batch_stride = kv_head_num * head_size;
+    int head_stride = head_size;
+    int q_offset = q_batch_id * batch_stride + q_head_id * head_stride + tid;
+    int k_offset = kv_batch_id * kv_batch_stride + kv_head_id * head_stride + tid;
+
+    ///////////////////////////////////以下是求向量化读取时的offset偏置情况/////////////////////////////////////
+    int vec_size = Vec<int8_t>::size; // = 4 for char4
+    int q_offset_vec = q_batch_id * batch_stride + q_head_id * head_stride + tid * vec_size;
+    int k_offset_vec = kv_batch_id * kv_batch_stride + kv_head_id * head_stride + tid * vec_size;
+
+    //同样的，这里也是求一些偏移量（是对kv cache求的偏移量）
+    int cache_offset = kv_batch_id * kv_head_num * max_seq_len * head_size +
+                        kv_head_id * max_seq_len * head_size + tid * vec_size;
+    int step_stride = head_size;
+
+    float scale = rsqrt(float(head_size));
+
+    using Vec_t = typename Vec<int8_t>::Type; // char4
+    Vec_t qvec, kvec, vvec;
+    const int8_t* q_mem = q;
+    const int8_t* k_mem = k;
+    const int8_t* v_mem = v;
+
+    /////////////////////////////////////////////////////////////////////////Add bias////////////////////////////////////////////////////////////////////
+    if (tid * vec_size < head_size) {
+        qvec = *reinterpret_cast<Vec_t*>(const_cast<int8_t*>(&q_mem[q_offset_vec]));
+        kvec = *reinterpret_cast<Vec_t*>(const_cast<int8_t*>(&k_mem[k_offset_vec]));
+        vvec = *reinterpret_cast<Vec_t*>(const_cast<int8_t*>(&v_mem[k_offset_vec]));
+    }
+
+    ////////////////////////////////////////////////////////////////////  Q*k batchGemm  ////////////////////////////////////////////////////////////////////
+    extern __shared__ char sqk[];
+    int8_t* sq_scalar = reinterpret_cast<int8_t*>(sqk);
+    float* logits = reinterpret_cast<float*>(sq_scalar + head_size);
+    Vec_t* sq = reinterpret_cast<Vec_t*>(sq_scalar);
+    if (tid * vec_size < head_size) {
+        sq[tid] = qvec;
+    }
+    __syncthreads();
+
+    int8_t zero_i8 = 0;
+    Vec_t zero_i8_4 = scalar_cast_vec<Vec_t, int8_t>(zero_i8);
+
+    for(int iter = 0; iter < step; iter++) {
+        Vec_t kvec_qk = tid * vec_size < head_size ? *reinterpret_cast<Vec_t*>(&k_cache[iter * step_stride + cache_offset]) : zero_i8_4;
+        if (iter == step - 1 && tid * vec_size < head_size) {
+            *reinterpret_cast<Vec_t*>(&k_cache[iter * step_stride + cache_offset]) = kvec;
+            kvec_qk = kvec;
+        }
+
+        // INT8 computation: dequantize, compute, accumulate in float
+        float qk_acc = 0.0f;
+        if (tid * vec_size < head_size) {
+            // Dequantize and compute Q*K
+            float qx = (float)sq[tid].x * INT8_INV_SCALE_FACTOR;
+            float qy = (float)sq[tid].y * INT8_INV_SCALE_FACTOR;
+            float qz = (float)sq[tid].z * INT8_INV_SCALE_FACTOR;
+            float qw = (float)sq[tid].w * INT8_INV_SCALE_FACTOR;
+            
+            float kx = (float)kvec_qk.x * INT8_INV_SCALE_FACTOR;
+            float ky = (float)kvec_qk.y * INT8_INV_SCALE_FACTOR;
+            float kz = (float)kvec_qk.z * INT8_INV_SCALE_FACTOR;
+            float kw = (float)kvec_qk.w * INT8_INV_SCALE_FACTOR;
+            
+            qk_acc = (qx * kx + qy * ky + qz * kz + qw * kw) * scale;
+        }
+
+        float attn_score = blockReduceSum<float>(qk_acc);
+        if(tid == 0) {
+            logits[iter] = attn_score;
+        }
+        __syncthreads();
+    }
+
+    ////////////////////////////////////////////////////////////////////  softmax   //////////////////////////////////////////////////////////////////////////
+    float local_logits = tid < step ? logits[tid] : 0.0f;
+    __shared__ float row_max, fenmu;
+    
+    float block_max = blockReduceMax<float>(local_logits);
+    if (tid == 0){
+        row_max = block_max;
+    }
+    __syncthreads();
+
+    float fenzi = tid < step ? expf(logits[tid] - row_max) : 0.0f;
+    
+    float block_fenmu = blockReduceSum<float>(fenzi);
+    if (tid == 0){
+        fenmu = block_fenmu + 1e-6f;
+    }
+    __syncthreads();
+
+    //求出softmax最终值
+    if(tid < step) {
+        logits[tid] = fenzi / fenmu;
+    }
+    __syncthreads();
+
+    ////////////////////////////////////////////////////////////////////  qk*v batchGemm  ////////////////////////////////////////////////////////////////////
+    if (tid * vec_size < head_size) {
+        // Compute in float, then quantize back
+        float Ox = 0.0f, Oy = 0.0f, Oz = 0.0f, Ow = 0.0f;
+        
+        for(int iter = 0; iter < step; iter++) {
+            Vec_t vvec_qkv = *reinterpret_cast<Vec_t*>(&v_cache[iter * step_stride + cache_offset]);
+            if (iter == step - 1) {
+                *reinterpret_cast<Vec_t*>(&v_cache[iter * step_stride + cache_offset]) = vvec;
+                vvec_qkv = vvec;
+            }
+
+            // Dequantize V and accumulate
+            float vx = (float)vvec_qkv.x * INT8_INV_SCALE_FACTOR;
+            float vy = (float)vvec_qkv.y * INT8_INV_SCALE_FACTOR;
+            float vz = (float)vvec_qkv.z * INT8_INV_SCALE_FACTOR;
+            float vw = (float)vvec_qkv.w * INT8_INV_SCALE_FACTOR;
+            
+            float logit_weight = logits[iter];
+            Ox += vx * logit_weight;
+            Oy += vy * logit_weight;
+            Oz += vz * logit_weight;
+            Ow += vw * logit_weight;
+        }
+        
+        // Quantize back to INT8
+        Vec_t O;
+        O.x = (int8_t)__float2int_rn(Ox * INT8_SCALE_FACTOR);
+        O.y = (int8_t)__float2int_rn(Oy * INT8_SCALE_FACTOR);
+        O.z = (int8_t)__float2int_rn(Oz * INT8_SCALE_FACTOR);
+        O.w = (int8_t)__float2int_rn(Ow * INT8_SCALE_FACTOR);
+        
+        ///////////////////////////////////////////////////////////将最终结果写回到输出结果矩阵中////////////////////////////////////////////////////
+        *reinterpret_cast<Vec_t*>(&mha_output[q_offset_vec]) = O;
+    }
+}
+
 template void launchDecoderMaskedMHA(TensorWrapper<float>* qkv_buf,
                             BaseWeight<float>& qkv,
                             TensorWrapper<int>* layer_id,
@@ -339,3 +641,24 @@ template void launchDecoderMaskedMHA(TensorWrapper<float>* qkv_buf,
                             TensorWrapper<int>* step,
                             TensorWrapper<float>* mha_output,
                             LLaMAAttentionStaticParams& static_params);
+
+template void launchDecoderMaskedMHA(TensorWrapper<half>* qkv_buf,
+                            BaseWeight<half>& qkv,
+                            TensorWrapper<int>* layer_id,
+                            TensorWrapper<half>* k_cache,
+                            TensorWrapper<half>* v_cache,
+                            TensorWrapper<bool>* finished,
+                            TensorWrapper<int>* step,
+                            TensorWrapper<half>* mha_output,
+                            LLaMAAttentionStaticParams& static_params);
+
+template void launchDecoderMaskedMHA(TensorWrapper<int8_t>* qkv_buf,
+                            BaseWeight<int8_t>& qkv,
+                            TensorWrapper<int>* layer_id,
+                            TensorWrapper<int8_t>* k_cache,
+                            TensorWrapper<int8_t>* v_cache,
+                            TensorWrapper<bool>* finished,
+                            TensorWrapper<int>* step,
+                            TensorWrapper<int8_t>* mha_output,
+                            LLaMAAttentionStaticParams& static_params);
+

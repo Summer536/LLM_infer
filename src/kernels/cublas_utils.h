@@ -23,6 +23,7 @@ class cublasWrapper {
 
         void setFP32GemmConfig();
         void setFP16GemmConfig();
+        void setINT8GemmConfig();
 
         void Gemm(cublasOperation_t transa,
                 cublasOperation_t transb,

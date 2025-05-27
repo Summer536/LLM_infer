@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libfused_decoder_self_attention.a CMakeFiles/fused_decoder_self_attention.dir/fused_decoder_self_attention.cu.o
+/usr/bin/ranlib ../../lib/libfused_decoder_self_attention.a

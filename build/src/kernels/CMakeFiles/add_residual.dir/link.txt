@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libadd_residual.a CMakeFiles/add_residual.dir/add_residual.cu.o
+/usr/bin/ranlib ../../lib/libadd_residual.a

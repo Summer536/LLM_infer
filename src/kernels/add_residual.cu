@@ -54,6 +54,49 @@ __global__ void AddResidual( // residual.shape = [num tokens, hidden_units], bat
     } // addresidual
 }
 
+//////////////////////////////////这个kernel是INT8类型的残差加///////////////////////////////////////
+template <>
+__global__ void AddResidual( // residual.shape = [num tokens, hidden_units], batch_size = num tokens, n_dims = hidden_units
+    int8_t *residual,
+    int8_t *decoder_out, // [num tokens, hidden_units]
+    int num_tokens,
+    int hidden_units)
+{
+    int vec_size = Vec<int8_t>::size;
+    using Vec_t = typename Vec<int8_t>::Type;
+    int batch_id = blockIdx.x;
+    int tid = threadIdx.x;
+    Vec_t *dout = reinterpret_cast<Vec_t *>(decoder_out + batch_id * hidden_units);
+    Vec_t *rsd = reinterpret_cast<Vec_t *>(residual + batch_id * hidden_units);
+    
+    for (int i = tid; i < hidden_units / vec_size; i += blockDim.x)
+    {
+        // For INT8, we need to dequantize, add, then quantize back
+        // Dequantize to float for computation
+        float dx = (float)dout[i].x * INT8_INV_SCALE_FACTOR;
+        float dy = (float)dout[i].y * INT8_INV_SCALE_FACTOR;
+        float dz = (float)dout[i].z * INT8_INV_SCALE_FACTOR;
+        float dw = (float)dout[i].w * INT8_INV_SCALE_FACTOR;
+        
+        float rx = (float)rsd[i].x * INT8_INV_SCALE_FACTOR;
+        float ry = (float)rsd[i].y * INT8_INV_SCALE_FACTOR;
+        float rz = (float)rsd[i].z * INT8_INV_SCALE_FACTOR;
+        float rw = (float)rsd[i].w * INT8_INV_SCALE_FACTOR;
+        
+        // Add in float precision
+        dx += rx;
+        dy += ry;
+        dz += rz;
+        dw += rw;
+        
+        // Quantize back to int8
+        dout[i].x = (int8_t)__float2int_rn(dx * INT8_SCALE_FACTOR);
+        dout[i].y = (int8_t)__float2int_rn(dy * INT8_SCALE_FACTOR);
+        dout[i].z = (int8_t)__float2int_rn(dz * INT8_SCALE_FACTOR);
+        dout[i].w = (int8_t)__float2int_rn(dw * INT8_SCALE_FACTOR);
+    } // addresidual
+}
+
 template <typename T>
 void launchAddResidual( // residual.shape = [num tokens, hidden_units], batch_size = num tokens, 256 threads travrse hiddenunits eles recursely
     TensorWrapper<T> *residual, //输入： [num tokens, hidden_units]（这里的第一维仅仅是在contextdecoder阶段是num tokens，在selfdecoder阶段是batchsize！）
@@ -89,5 +132,10 @@ template void launchAddResidual( // residual.shape = [num tokens, hidden_units],
 template void launchAddResidual( // residual.shape = [num tokens, hidden_units], batch_size = num tokens, n_dims = hidden_units
     TensorWrapper<half> *residual,
     TensorWrapper<half> *decoder_out, // [num tokens, hidden_units]
+    bool is_print
+    );
+template void launchAddResidual( // residual.shape = [num tokens, hidden_units], batch_size = num tokens, n_dims = hidden_units
+    TensorWrapper<int8_t> *residual,
+    TensorWrapper<int8_t> *decoder_out, // [num tokens, hidden_units]
     bool is_print
     );

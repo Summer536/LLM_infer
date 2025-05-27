@@ -32,6 +32,17 @@ inline __device__ half2 scalar_cast_vec<half2, half>(half val){
     return res;
 }
 
+// Add INT8 scalar cast
+template <>
+inline __device__ char4 scalar_cast_vec<char4, int8_t>(int8_t val){
+    return make_char4(val, val, val, val);
+}
+
+template <>
+inline __device__ char2 scalar_cast_vec<char2, int8_t>(int8_t val){
+    return make_char2(val, val);
+}
+
 template <typename T>
 struct Vec {
     using Type = T;
@@ -47,6 +58,13 @@ struct Vec<half> {
 template <>
 struct Vec<float> {
     using Type = float4;
+    static constexpr int size = 4;
+};
+
+// Add INT8 vectorization support
+template <>
+struct Vec<int8_t> {
+    using Type = char4;
     static constexpr int size = 4;
 };
 

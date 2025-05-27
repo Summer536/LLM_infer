@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/liblinear.a CMakeFiles/linear.dir/linear.cu.o
+/usr/bin/ranlib ../../lib/liblinear.a

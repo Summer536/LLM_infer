@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libbuild_causal_mask.a CMakeFiles/build_causal_mask.dir/build_causal_mask.cu.o
+/usr/bin/ranlib ../../lib/libbuild_causal_mask.a

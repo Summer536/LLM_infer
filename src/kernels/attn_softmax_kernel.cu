@@ -225,6 +225,110 @@ __global__ void ScaleMaskAndSoftmax_half(T_half *attn_score,
 }
 
 
+///////////////////////////////////////////////////////////////////以下是INT8版本！////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////      与FP32/FP16不同的部分将用会///////来标注            //////////////////////////////
+template <typename T_int8, int NUMS_PER_THREAD_PER_ROW>
+__global__ void ScaleMaskAndSoftmax_int8(T_int8 *attn_score,
+                                         T_int8 *qk,
+                                         T_int8 *mask,
+                                         int batch_size,
+                                         int head_nums,
+                                         int q_len,
+                                         int k_len,
+                                         float scale)
+{
+    int batch_id = blockIdx.y;
+    int head_id = blockIdx.z;
+    
+    int vec_size = Vec<T_int8>::size;          ///////INT8是以向量长度为4的粒度来读写并且计算的
+    using Vec_t = typename Vec<T_int8>::Type;  ///////这个过程和RMSNorm中用到向量的时候类似
+
+    ///////
+    Vec_t* attn_score_vec = reinterpret_cast<Vec_t*>(attn_score);
+    Vec_t* qk_buf_vec = reinterpret_cast<Vec_t*>(qk);
+    Vec_t* attn_mask_vec  = reinterpret_cast<Vec_t*>(mask);
+
+    __shared__ float inv_sum, s_max;
+    // warning: remember 1st priority thing is filtering the out-of-boundary threads
+    if (threadIdx.x * vec_size >= k_len)
+    {
+        return;
+    }
+
+    for (int row_start = blockIdx.x; row_start < q_len; row_start += gridDim.x) 
+    {
+        int qk_offset = 0;
+        int mask_offset = 0;
+        Vec_t qk_data;
+        Vec_t mask_data;
+        float thread_max = FLT_MIN;
+        Vec_t data[NUMS_PER_THREAD_PER_ROW]; 
+        float float_data[NUMS_PER_THREAD_PER_ROW][4]; // Store dequantized values
+        
+        for (int col_start = 0; col_start < NUMS_PER_THREAD_PER_ROW; col_start++) 
+        {
+            qk_offset = batch_id * head_nums * q_len * k_len / 4 + head_id * q_len * k_len / 4  + row_start * k_len / 4 + col_start * blockDim.x + threadIdx.x;
+            qk_data = qk_buf_vec[qk_offset];
+
+            mask_offset = batch_id * q_len * k_len / 4 + row_start * k_len / 4 + col_start * blockDim.x + threadIdx.x;
+            mask_data = attn_mask_vec[mask_offset];
+            
+            // Dequantize and apply scale and mask
+            float_data[col_start][0] = scale * ((float)qk_data.x * INT8_INV_SCALE_FACTOR) + (1.0f - (float)mask_data.x * INT8_INV_SCALE_FACTOR) * (-10000.0f);
+            float_data[col_start][1] = scale * ((float)qk_data.y * INT8_INV_SCALE_FACTOR) + (1.0f - (float)mask_data.y * INT8_INV_SCALE_FACTOR) * (-10000.0f);
+            float_data[col_start][2] = scale * ((float)qk_data.z * INT8_INV_SCALE_FACTOR) + (1.0f - (float)mask_data.z * INT8_INV_SCALE_FACTOR) * (-10000.0f);
+            float_data[col_start][3] = scale * ((float)qk_data.w * INT8_INV_SCALE_FACTOR) + (1.0f - (float)mask_data.w * INT8_INV_SCALE_FACTOR) * (-10000.0f);
+            
+            thread_max = fmax(fmax(fmax(fmax(float_data[col_start][0], float_data[col_start][1]), 
+                                       float_data[col_start][2]), float_data[col_start][3]), thread_max);
+        }
+        
+        // warp/block reduce
+        float max_val = blockReduce<MaxOp, float>(thread_max);
+        if (threadIdx.x == 0)
+        {
+            s_max = max_val;
+        }
+        __syncthreads();
+        
+        // thread local fenzi/fenmu
+        float thread_sum = 0.0f;
+        for (int col_start = 0; col_start < NUMS_PER_THREAD_PER_ROW; col_start++)
+        {
+            float_data[col_start][0] = expf(float_data[col_start][0] - s_max);
+            float_data[col_start][1] = expf(float_data[col_start][1] - s_max);
+            float_data[col_start][2] = expf(float_data[col_start][2] - s_max);
+            float_data[col_start][3] = expf(float_data[col_start][3] - s_max);
+            
+            thread_sum += float_data[col_start][0] + float_data[col_start][1] + float_data[col_start][2] + float_data[col_start][3];
+        }
+        
+        // row sum
+        float sum = blockReduce<SumOp, float>(thread_sum);
+        if (threadIdx.x == 0)
+        {
+            inv_sum = 1 / (sum + 1e-6f);
+        }
+        __syncthreads();
+        
+        // write back into gmem - quantize the softmax results
+        for (int col_start = 0; col_start < NUMS_PER_THREAD_PER_ROW; col_start++)
+        {
+            qk_offset = batch_id * head_nums * q_len * k_len / 4 + head_id * q_len * k_len / 4 + row_start * k_len / 4 + col_start * blockDim.x + threadIdx.x;
+            
+            // Apply inverse sum and quantize back to int8
+            Vec_t result;
+            result.x = (int8_t)__float2int_rn((float_data[col_start][0] * inv_sum) * INT8_SCALE_FACTOR);
+            result.y = (int8_t)__float2int_rn((float_data[col_start][1] * inv_sum) * INT8_SCALE_FACTOR);
+            result.z = (int8_t)__float2int_rn((float_data[col_start][2] * inv_sum) * INT8_SCALE_FACTOR);
+            result.w = (int8_t)__float2int_rn((float_data[col_start][3] * inv_sum) * INT8_SCALE_FACTOR);
+            
+            attn_score_vec[qk_offset] = result;
+        }
+    }
+}
+
+
 #define LAUNCH_SOFTMAX(dtype, vec_size)                                                                         \
     if (block.x > 2048 && block.x <= 4096)                                                                      \
     {                                                                                                           \
@@ -287,12 +391,67 @@ void launchScaleMaskAndSoftmax(TensorWrapper<T> *qk,    //输入qk矩阵
     int k_length = qk->shape[3];
 
     bool is_half = sizeof(T) == 2;
+    bool is_int8 = sizeof(T) == 1;
+    
     if (is_half) {
     	LLM_CHECK_WITH_INFO(k_length % 2 == 0, "Currently, K_len should be divided by 2 under half type!");
     }
+    if (is_int8) {
+        LLM_CHECK_WITH_INFO(k_length % 4 == 0, "Currently, K_len should be divided by 4 under int8 type!");
+    }
+    
     dim3 grid(q_length, batch_size, head_nums); 
     dim3 block((k_length + 32 - 1) / 32 * 32);  
-    if (is_half)
+    
+    if (is_int8)
+    {
+        // Launch INT8 version - only for int8_t type
+        if (block.x > 2048 && block.x <= 4096)
+        {
+            constexpr int NUMS_PER_THREAD_PER_ROW = 4;
+            block.x /= 4 * 4;  // vec_size = 4 for int8
+            block.x = (block.x + 32 - 1) / 32 * 32;
+            assert(block.x < 1024);
+            ScaleMaskAndSoftmax_int8<int8_t, NUMS_PER_THREAD_PER_ROW><<<grid, block>>>((int8_t *)attn_score->data,
+                                                                                 (int8_t *)qk->data,
+                                                                                 (int8_t *)mask->data,
+                                                                                 batch_size,
+                                                                                 head_nums,
+                                                                                 q_length,
+                                                                                 k_length,
+                                                                                 scale);
+        }
+        else if (block.x > 1024)
+        {
+            constexpr int NUMS_PER_THREAD_PER_ROW = 2;
+            block.x /= 2 * 4;
+            block.x = (block.x + 32 - 1) / 32 * 32;
+            assert(block.x < 1024);
+            ScaleMaskAndSoftmax_int8<int8_t, NUMS_PER_THREAD_PER_ROW><<<grid, block>>>((int8_t *)attn_score->data,
+                                                                                 (int8_t *)qk->data,
+                                                                                 (int8_t *)mask->data,
+                                                                                 batch_size,
+                                                                                 head_nums,
+                                                                                 q_length,
+                                                                                 k_length,
+                                                                                 scale);
+        }
+        else
+        {
+            constexpr int NUMS_PER_THREAD_PER_ROW = 1;
+            block.x /= 4;
+            assert(block.x < 1024);
+            ScaleMaskAndSoftmax_int8<int8_t, NUMS_PER_THREAD_PER_ROW><<<grid, block>>>((int8_t *)attn_score->data,
+                                                                                 (int8_t *)qk->data,
+                                                                                 (int8_t *)mask->data,
+                                                                                 batch_size,
+                                                                                 head_nums,
+                                                                                 q_length,
+                                                                                 k_length,
+                                                                                 scale);
+        }
+    }
+    else if (is_half)
     {
         LAUNCH_SOFTMAX(half, 2); 
     }
@@ -314,4 +473,9 @@ template void launchScaleMaskAndSoftmax(TensorWrapper<float> *qk,
 template void launchScaleMaskAndSoftmax(TensorWrapper<half> *qk,
                                         TensorWrapper<half> *mask,
                                         TensorWrapper<half> *attn_score,
+                                        float scale);
+
+template void launchScaleMaskAndSoftmax(TensorWrapper<int8_t> *qk,
+                                        TensorWrapper<int8_t> *mask,
+                                        TensorWrapper<int8_t> *attn_score,
                                         float scale);

@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libmask_softmax.a CMakeFiles/mask_softmax.dir/attn_softmax_kernel.cu.o
+/usr/bin/ranlib ../../lib/libmask_softmax.a

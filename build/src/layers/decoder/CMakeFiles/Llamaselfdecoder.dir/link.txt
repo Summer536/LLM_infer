@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../lib/libLlamaselfdecoder.a CMakeFiles/Llamaselfdecoder.dir/self_decoder.cpp.o
+/usr/bin/ranlib ../../../lib/libLlamaselfdecoder.a

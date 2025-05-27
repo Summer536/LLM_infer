@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/librepeat_kv.a CMakeFiles/repeat_kv.dir/repeat_kv.cu.o
+/usr/bin/ranlib ../../lib/librepeat_kv.a

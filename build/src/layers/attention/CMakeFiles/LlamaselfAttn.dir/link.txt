@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../lib/libLlamaselfAttn.a CMakeFiles/LlamaselfAttn.dir/masked_self_attention.cpp.o
+/usr/bin/ranlib ../../../lib/libLlamaselfAttn.a

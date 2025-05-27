@@ -6,6 +6,10 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 
+// Add INT8 quantization support
+#define INT8_SCALE_FACTOR 127.0f
+#define INT8_INV_SCALE_FACTOR (1.0f / 127.0f)
+
 #define CHECK(call)                                   \
 do                                                    \
 {                                                     \

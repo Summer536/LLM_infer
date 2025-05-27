@@ -44,3 +44,6 @@ template void launchInputEmbedding(TensorWrapper<int>* input_ids,
 template void launchInputEmbedding(TensorWrapper<int>* input_ids,    
                                    TensorWrapper<half>* output,       
                                    EmbeddingWeight<half>* embed_table);
+template void launchInputEmbedding(TensorWrapper<int>* input_ids,    
+                                   TensorWrapper<int8_t>* output,       
+                                   EmbeddingWeight<int8_t>* embed_table);

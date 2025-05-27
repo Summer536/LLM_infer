@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../lib/libLlamaffn.a CMakeFiles/Llamaffn.dir/ffn.cpp.o
+/usr/bin/ranlib ../../../lib/libLlamaffn.a

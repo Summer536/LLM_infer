@@ -41,7 +41,9 @@ target_link_libraries(  # Libs for test_linear
     testlinear PUBLIC
     -lcudart
     -lcudadevrt
-    linear) 
+    linear
+    cublasWrapper
+    -lcublasLt) 
 
 add_executable(biasRope
     test_bias_and_RoPE.cu

@@ -59,7 +59,8 @@ bool checkResults(float* h_output, float* d_output, const int output_size) {
     return true;
 }
 
-int main(int argc, char *argv[]) {
+template<typename T>
+void test_input_embedding_kernel() {
     const int max_context_token_num = 64;
     const int hidden_size = 4096;
     const int vocab_size = 32000;
@@ -67,106 +68,83 @@ int main(int argc, char *argv[]) {
     const int table_size = vocab_size * hidden_size;
     const int output_size = max_context_token_num * hidden_size;
 
+    printf("Testing %s input embedding kernel\n", typeid(T).name());
+
     int* h_input = (int*) malloc(input_size * sizeof(int));
+    T* h_table = (T*) malloc(table_size * sizeof(T));
+    T* h_output = (T*) malloc(output_size * sizeof(T));
 
-    if (argv[1]) {
-        float* h_table = (float*) malloc(table_size * sizeof(float));
-        float* h_output = (float*) malloc(output_size * sizeof(float));
+    std::cout << "init memory on host" << std::endl;
 
-        std::cout << "init memory on host" << std::endl;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis_int(0, vocab_size - 1);
 
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis_int(0, vocab_size - 1);
-        std::uniform_real_distribution<> dis_real(1.0, 2.0);
-
-        for (int i = 0; i < max_context_token_num; ++i) {
-            h_input[i] = dis_int(gen);
-            printf("h_input[%d] = %d\n",i,  h_input[i]);
-        }
-        for (int i = 0; i < table_size; ++i) {
-            h_table[i] = (float)(i / hidden_size);
-        }
-
-        int* d_input;
-        float *d_table, *d_output;
-        cudaMalloc((void**)&d_input, input_size * sizeof(int));
-        cudaMalloc((void**)&d_table, table_size * sizeof(float));
-        cudaMalloc((void**)&d_output, output_size * sizeof(float));
-        std::cout << "init memory on device" << std::endl;
-
-        CHECK(cudaMemcpy(d_input, h_input, input_size * sizeof(int), cudaMemcpyHostToDevice));
-        CHECK(cudaMemcpy(d_table, h_table, table_size * sizeof(float), cudaMemcpyHostToDevice));
-        std::cout << "copy to device" << std::endl;
-
-        DataType type_float = getTensorType<float>();
-        DataType type_int = getTensorType<int>();
-        TensorWrapper<int>* input_ids = new TensorWrapper<int>(Device::GPU, type_int, {max_context_token_num},    d_input);
-        TensorWrapper<float>* output = new TensorWrapper<float>(Device::GPU, type_float, {max_context_token_num,     hidden_size}, d_output);
-        EmbeddingWeight<float> emb_table;
-        emb_table.data = d_table;
-
-        launchInputEmbedding(input_ids, output, &emb_table);
-        CHECK(cudaMemcpy(h_output, output->data, output_size * sizeof(float), cudaMemcpyDeviceToHost));
-        std::cout << "printf h_output for check" << std::endl;
-        for (int i = 0; i < max_context_token_num; i++){
-            std::cout << (float)h_output[i * hidden_size] << std::endl;
-        }
-
-        cudaFree(d_output);
-        cudaFree(d_table);
-        cudaFree(d_input);
-        free(h_output);
-        free(h_table);
-        free(h_input);
-    } else {
-        half* h_table = (half*) malloc(table_size * sizeof(half));
-        half* h_output = (half*) malloc(output_size * sizeof(half));
-
-        std::cout << "init memory on host" << std::endl;
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis_int(0, vocab_size - 1);
-        std::uniform_real_distribution<> dis_real(1.0, 2.0);
-
-        for (int i = 0; i < max_context_token_num; ++i) {
-            h_input[i] = dis_int(gen);
-        }
-	    printf("h_input[0] = %d\n", h_input[0]);
-        for (int i = 0; i < table_size; ++i) {
-            h_table[i] = (half)(i / hidden_size);
-        }
-
-        int* d_input;
-
-        half *d_table, *d_output;
-        cudaMalloc((void**)&d_input, input_size * sizeof(int));
-        cudaMalloc((void**)&d_table, table_size * sizeof(half));
-        cudaMalloc((void**)&d_output, output_size * sizeof(half));
-        std::cout << "init memory on device" << std::endl;
-
-        CHECK(cudaMemcpy(d_input, h_input, input_size * sizeof(int), cudaMemcpyHostToDevice));
-        CHECK(cudaMemcpy(d_table, h_table, table_size * sizeof(half), cudaMemcpyHostToDevice));
-        std::cout << "copy to device" << std::endl;
-
-        DataType type_float = getTensorType<float>();
-        DataType type_half = getTensorType<half>();
-        DataType type_int = getTensorType<int>();
-        TensorWrapper<int>* input_ids = new TensorWrapper<int>(Device::GPU, type_int, {max_context_token_num},    d_input);
-        TensorWrapper<half>* output = new TensorWrapper<half>(Device::GPU, type_half, {max_context_token_num,     hidden_size}, d_output);
-        EmbeddingWeight<half> emb_table;
-        emb_table.data = d_table;
-        launchInputEmbedding(input_ids, output, &emb_table);
-        CHECK(cudaMemcpy(h_output, output->data, output_size * sizeof(half), cudaMemcpyDeviceToHost));
-        std::cout << "printf h_output for check" << std::endl;
-        std::cout << (float)h_output[0] << std::endl;
-        std::cout << (float)h_output[1] << std::endl;
-        cudaFree(d_output);
-        cudaFree(d_table);
-        cudaFree(d_input);
-        free(h_output);
-        free(h_table);
-        free(h_input);        
+    for (int i = 0; i < max_context_token_num; ++i) {
+        h_input[i] = dis_int(gen);
+        if (i < 5) printf("h_input[%d] = %d\n", i, h_input[i]);
     }
+    
+    // Initialize table with simple pattern for testing
+    for (int i = 0; i < table_size; ++i) {
+        if (std::is_same<T, int8_t>::value) {
+            h_table[i] = (T)((i / hidden_size) % 20 - 10); // Range [-10, 9] for INT8
+        } else {
+            h_table[i] = (T)(i / hidden_size);
+        }
+    }
+
+    int* d_input;
+    T *d_table, *d_output;
+    cudaMalloc((void**)&d_input, input_size * sizeof(int));
+    cudaMalloc((void**)&d_table, table_size * sizeof(T));
+    cudaMalloc((void**)&d_output, output_size * sizeof(T));
+    std::cout << "init memory on device" << std::endl;
+
+    CHECK(cudaMemcpy(d_input, h_input, input_size * sizeof(int), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_table, h_table, table_size * sizeof(T), cudaMemcpyHostToDevice));
+    std::cout << "copy to device" << std::endl;
+
+    DataType type = getTensorType<T>();
+    DataType type_int = getTensorType<int>();
+    TensorWrapper<int>* input_ids = new TensorWrapper<int>(Device::GPU, type_int, {max_context_token_num}, d_input);
+    TensorWrapper<T>* output = new TensorWrapper<T>(Device::GPU, type, {max_context_token_num, hidden_size}, d_output);
+    EmbeddingWeight<T> emb_table;
+    emb_table.data = d_table;
+
+    launchInputEmbedding(input_ids, output, &emb_table);
+    CHECK(cudaMemcpy(h_output, output->data, output_size * sizeof(T), cudaMemcpyDeviceToHost));
+    
+    std::cout << "printf h_output for check (first 5 embeddings):" << std::endl;
+    for (int i = 0; i < 5 && i < max_context_token_num; i++){
+        std::cout << "embedding[" << i << "][0] = " << (float)h_output[i * hidden_size] << std::endl;
+    }
+    
+    printf("Test completed successfully\n");
+
+    cudaFree(d_output);
+    cudaFree(d_table);
+    cudaFree(d_input);
+    free(h_output);
+    free(h_table);
+    free(h_input);
+    delete input_ids;
+    delete output;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc > 1) {
+        std::string arg = argv[1];
+        if (arg == "fp16") {
+            test_input_embedding_kernel<half>();
+        } else if (arg == "int8") {
+            test_input_embedding_kernel<int8_t>();
+        } else {
+            test_input_embedding_kernel<float>();
+        }
+    } else {
+        test_input_embedding_kernel<float>();
+    }
+    
+    return 0;
 }

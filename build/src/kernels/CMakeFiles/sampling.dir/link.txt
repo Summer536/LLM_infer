@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libsampling.a CMakeFiles/sampling.dir/sampling.cu.o
+/usr/bin/ranlib ../../lib/libsampling.a

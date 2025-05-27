@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libcublasWrapper.a CMakeFiles/cublasWrapper.dir/cublas_utils.cc.o
+/usr/bin/ranlib ../../lib/libcublasWrapper.a

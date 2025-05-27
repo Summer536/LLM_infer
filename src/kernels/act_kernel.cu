@@ -15,6 +15,29 @@ __device__ __forceinline__ half2 silu<half2>(const half2& in) {
         //make half2: 将两个half类型的数据组合成一个half2(向量化)类型的变量
 }
 
+// int8 silu version - convert to float, compute, then quantize back
+template<>
+__device__ __forceinline__ char4 silu<char4>(const char4& in) {
+  // Dequantize to float, compute silu, then quantize back
+  float x = (float)in.x * INT8_INV_SCALE_FACTOR;
+  float y = (float)in.y * INT8_INV_SCALE_FACTOR;
+  float z = (float)in.z * INT8_INV_SCALE_FACTOR;
+  float w = (float)in.w * INT8_INV_SCALE_FACTOR;
+  
+  x = silu<float>(x);
+  y = silu<float>(y);
+  z = silu<float>(z);
+  w = silu<float>(w);
+  
+  // Quantize back to int8
+  return make_char4(
+    (int8_t)__float2int_rn(x * INT8_SCALE_FACTOR),
+    (int8_t)__float2int_rn(y * INT8_SCALE_FACTOR),
+    (int8_t)__float2int_rn(z * INT8_SCALE_FACTOR),
+    (int8_t)__float2int_rn(w * INT8_SCALE_FACTOR)
+  );
+}
+
 // 这里第一个intermediate表示gate linear后的数据，第二个intermediate表示up linear后的数据
 // 代码逻辑：第一个intermediate 去做silu，其结果 与 第二个intermediate 做点乘mul
 // silu:  x * sigmoid(x) 
@@ -53,6 +76,45 @@ __global__ void silu_and_mul_kernel<half>(
   }
 }
 
+template<>
+__global__ void silu_and_mul_kernel<int8_t>(
+  int8_t* out,               // [bs, intermedia size]
+  const int8_t* input,       // [bs, 2, intermedia size]
+  const int intermedia_size) {
+  const int batch_idx = blockIdx.x;
+
+  int vec_size = Vec<int8_t>::size;
+
+  using Vec_t = typename Vec<int8_t>::Type;
+  for (int idx = threadIdx.x * vec_size; idx < intermedia_size; idx += blockDim.x * vec_size) {
+    const Vec_t x = *reinterpret_cast<const Vec_t*>(&input[batch_idx * 2 * intermedia_size + idx]);
+    const Vec_t y = *reinterpret_cast<const Vec_t*>(&input[batch_idx * 2 * intermedia_size + intermedia_size + idx]);
+    
+    // For INT8, we need to do element-wise multiplication after silu
+    // Dequantize, compute silu, multiply, then quantize back
+    Vec_t silu_x = silu<Vec_t>(x);
+    
+    // Element-wise multiplication for char4 (INT8 vector type)
+    char4 result;
+    float fx = (float)silu_x.x * INT8_INV_SCALE_FACTOR;
+    float fy = (float)silu_x.y * INT8_INV_SCALE_FACTOR;
+    float fz = (float)silu_x.z * INT8_INV_SCALE_FACTOR;
+    float fw = (float)silu_x.w * INT8_INV_SCALE_FACTOR;
+    
+    float gx = (float)y.x * INT8_INV_SCALE_FACTOR;
+    float gy = (float)y.y * INT8_INV_SCALE_FACTOR;
+    float gz = (float)y.z * INT8_INV_SCALE_FACTOR;
+    float gw = (float)y.w * INT8_INV_SCALE_FACTOR;
+    
+    result.x = (int8_t)__float2int_rn((fx * gx) * INT8_SCALE_FACTOR);
+    result.y = (int8_t)__float2int_rn((fy * gy) * INT8_SCALE_FACTOR);
+    result.z = (int8_t)__float2int_rn((fz * gz) * INT8_SCALE_FACTOR);
+    result.w = (int8_t)__float2int_rn((fw * gw) * INT8_SCALE_FACTOR);
+    
+    *reinterpret_cast<Vec_t*>(&out[batch_idx * intermedia_size + idx]) = result;
+  }
+}
+
 template<typename T>
 void launchAct(TensorWrapper<T>* input, TensorWrapper<T>* out) {
     // Input shape: [bs, 2, intermedia size]
@@ -71,3 +133,4 @@ void launchAct(TensorWrapper<T>* input, TensorWrapper<T>* out) {
 // We must instancite the template, if not, will report linking issue
 template void launchAct(TensorWrapper<float>* input, TensorWrapper<float>* output);
 template void launchAct(TensorWrapper<half>* input, TensorWrapper<half>* output);
+template void launchAct(TensorWrapper<int8_t>* input, TensorWrapper<int8_t>* output);

@@ -22,6 +22,13 @@ void cublasWrapper::setFP16GemmConfig() {
     computeType_ = CUDA_R_32F;
 }
 
+void cublasWrapper::setINT8GemmConfig() {
+    Atype_ = CUDA_R_8I;
+    Btype_ = CUDA_R_8I;
+    Ctype_ = CUDA_R_8I;
+    computeType_ = CUDA_R_32F;
+}
+
 void cublasWrapper::Gemm(cublasOperation_t transa,
                          cublasOperation_t transb,
                          const int m,

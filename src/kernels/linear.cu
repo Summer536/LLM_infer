@@ -122,3 +122,31 @@ template void launchLinearStridedBatchGemm<float>(TensorWrapper<float> *input1,
                                                     bool trans_a,
                                                     bool trans_b);
                                                     
+template void launchLinearGemm<half>(TensorWrapper<half> *input,
+                                     BaseWeight<half> &weight,
+                                     TensorWrapper<half> *output,
+                                     cublasWrapper *cublas_wrapper,
+                                     bool trans_a,
+                                     bool trans_b);
+                                     
+template void launchLinearStridedBatchGemm<half>(TensorWrapper<half> *input1,
+                                                   TensorWrapper<half> *input2,
+                                                   TensorWrapper<half> *output,
+                                                   cublasWrapper *cublas_wrapper,
+                                                   bool trans_a,
+                                                   bool trans_b);
+
+template void launchLinearGemm<int8_t>(TensorWrapper<int8_t> *input,
+                                     BaseWeight<int8_t> &weight,
+                                     TensorWrapper<int8_t> *output,
+                                     cublasWrapper *cublas_wrapper,
+                                     bool trans_a,
+                                     bool trans_b);
+                                     
+template void launchLinearStridedBatchGemm<int8_t>(TensorWrapper<int8_t> *input1,
+                                                   TensorWrapper<int8_t> *input2,
+                                                   TensorWrapper<int8_t> *output,
+                                                   cublasWrapper *cublas_wrapper,
+                                                   bool trans_a,
+                                                   bool trans_b);
+                                                    
