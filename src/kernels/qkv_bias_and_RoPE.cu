@@ -3,12 +3,38 @@
 #include "src/utils/cuda_debug_utils.cuh"
 #include "src/kernels/qkv_bias_and_RoPE.h"
 
+// Helper function for converting to float for computation
+template<typename T>
+__device__ inline float convertToFloat(T val) {
+    if constexpr (std::is_same_v<T, int8_t>) {
+        return static_cast<float>(val) * INT8_INV_SCALE_FACTOR;
+    } else if constexpr (std::is_same_v<T, half>) {
+        return __half2float(val);
+    } else {
+        return static_cast<float>(val);
+    }
+}
+
+// Helper function for converting from float back to target type
+template<typename T>
+__device__ inline T convertFromFloat(float val) {
+    if constexpr (std::is_same_v<T, int8_t>) {
+        return static_cast<T>(__float2int_rn(val * INT8_SCALE_FACTOR));
+    } else if constexpr (std::is_same_v<T, half>) {
+        return __float2half(val);
+    } else {
+        return static_cast<T>(val);
+    }
+}
+
+// RoPE frequency calculation - always in float precision for mathematical accuracy
 inline __device__ float2 GetRoPEfreq(int zid, int rot_embed_dim, float base, float t_step)
 {
     const float inv_freq = t_step / powf(base, zid / (float)rot_embed_dim);
     return {cos(inv_freq), sin(inv_freq)};
 }
 
+// RoPE result calculation - always in float precision for mathematical accuracy
 inline __device__ float2 GetRoPEres(float data, float data_rotate, const float2 coef)
 {
     float2 rot_v; 
@@ -43,19 +69,20 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T *q_buf,
     int token_padding_offset = padding_offset[token_id];  //需要读取offset，该量由之前的kernel计算而得(/src/kernels/cal_padding_offset_kernel.cu)
 
 
-    // 1. prapare rebuilding , do rebuild padding and transpose when store
+    // 1. prepare rebuilding , do rebuild padding and transpose when store
     int dst_token_id = token_id + token_padding_offset; 
     int batch_id = dst_token_id / seq_len;      
     int local_token_id = dst_token_id % seq_len; 
 
 
-    // 2. bias add (llama2不需要加bias)
+    // 2. bias add (llama2不需要加bias，但为了通用性保留代码结构)
     int qkv_head_num = head_num + 2 * kv_head_num; 
     int q_id = token_id * qkv_head_num * head_size + head_id * head_size + tid;                                                  //当前线程访问的q id
     int k_id = token_id * qkv_head_num * head_size + head_id * head_size + tid + head_num * head_size;                           //当前线程访问的k id
     int v_id = token_id * qkv_head_num * head_size + head_id * head_size + tid + head_num * head_size + kv_head_num * head_size; //当前线程访问的v id
                                                                                 
-    float v = QKV[v_id]; 
+    // Read V value and store (V不需要RoPE处理，直接转置存储)
+    T v_val = QKV[v_id]; 
     int dst_q_id = batch_id * seq_len * head_num * head_size +
                    head_id * seq_len * head_size +
                    local_token_id * head_size + tid;
@@ -65,11 +92,11 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T *q_buf,
                     local_token_id * head_size + tid;
     if (head_id < kv_head_num) 
     { 
-        v_buf[dst_kv_id] = v;
+        v_buf[dst_kv_id] = v_val;
     }
 
 
-    // 3. RoPE
+    // 3. RoPE - 转换为float进行数学计算以保证精度
     const int cur_seq_history_len = history_length[batch_id];                  //当前句子历史的长度：表示当前序列之前已经处理过的历史对话长度；在多轮对话中，这个值会累积增加
     const int context_length = cur_seq_history_len + input_length[batch_id];   //当前句子历史的长度 + 当前句子的长度 = 当前句子上下文的长度
     const int timestep = cur_seq_history_len + local_token_id;                 //当前句子历史的长度 + 现在的token id = 这个token在整个对话历史中的全局位置
@@ -79,18 +106,27 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T *q_buf,
         return;
     } 
 
+    // 获取RoPE的cos和sin系数（始终使用float精度进行数学计算）
     float2 cos_sin = GetRoPEfreq(tid * 2, rotary_embedding_dim, rotary_embedding_base, timestep); 
-    float2 q_rotate = GetRoPEres(QKV[q_id], QKV[q_id + head_size / 2], cos_sin);    
-    float2 k_rotate = GetRoPEres(QKV[k_id], QKV[k_id + head_size / 2], cos_sin);
+    
+    // 将Q和K值转换为float进行RoPE计算
+    float q_val_f = convertToFloat(QKV[q_id]);
+    float q_rotate_val_f = convertToFloat(QKV[q_id + head_size / 2]);
+    float k_val_f = convertToFloat(QKV[k_id]);
+    float k_rotate_val_f = convertToFloat(QKV[k_id + head_size / 2]);
+    
+    // 在float精度下进行RoPE计算
+    float2 q_rotate = GetRoPEres(q_val_f, q_rotate_val_f, cos_sin);    
+    float2 k_rotate = GetRoPEres(k_val_f, k_rotate_val_f, cos_sin);
 
 
-    // 4. write back 
-    q_buf[dst_q_id] = q_rotate.x;                 
-    q_buf[dst_q_id + head_size / 2] = q_rotate.y;  
+    // 4. write back - 将计算结果转换回目标类型
+    q_buf[dst_q_id] = convertFromFloat<T>(q_rotate.x);                 
+    q_buf[dst_q_id + head_size / 2] = convertFromFloat<T>(q_rotate.y);  
     if (head_id < kv_head_num) 
     { 
-        k_buf[dst_kv_id] = k_rotate.x;
-        k_buf[dst_kv_id + head_size / 2] = k_rotate.y;
+        k_buf[dst_kv_id] = convertFromFloat<T>(k_rotate.x);
+        k_buf[dst_kv_id + head_size / 2] = convertFromFloat<T>(k_rotate.y);
     }
 }
 
@@ -142,6 +178,7 @@ void launchAddFusedQKVBiasTransposeAndRoPE(TensorWrapper<T> *q_buf,
 #endif
 }
 
+// 添加所有类型的模板实例化
 template void launchAddFusedQKVBiasTransposeAndRoPE(TensorWrapper<float> *q_buf,
                                                     TensorWrapper<float> *k_buf,
                                                     TensorWrapper<float> *v_buf,
@@ -156,6 +193,15 @@ template void launchAddFusedQKVBiasTransposeAndRoPE(TensorWrapper<half> *q_buf,
                                                     TensorWrapper<half> *v_buf,
                                                     TensorWrapper<half> *QKV,
                                                     BaseWeight<half> &qkv,
+                                                    TensorWrapper<int> *padding_offset,
+                                                    TensorWrapper<int> *history_length,
+                                                    TensorWrapper<int> *input_length,
+                                                    LLaMAAttentionStaticParams &params);
+template void launchAddFusedQKVBiasTransposeAndRoPE(TensorWrapper<int8_t> *q_buf,
+                                                    TensorWrapper<int8_t> *k_buf,
+                                                    TensorWrapper<int8_t> *v_buf,
+                                                    TensorWrapper<int8_t> *QKV,
+                                                    BaseWeight<int8_t> &qkv,
                                                     TensorWrapper<int> *padding_offset,
                                                     TensorWrapper<int> *history_length,
                                                     TensorWrapper<int> *input_length,
@@ -197,20 +243,27 @@ __global__ void rope_kernel_for_self_decoder(T* q,
         return;
     }
 
-    // 3.RoPE
-    float k_reg = k[k_offset];
-    float k_rotate_reg = k[k_offset + head_size / 2];
-    float2 cos_sin = GetRoPEfreq(tid * 2, rotary_embedding_dim, rotary_embedding_base, step - 1); //注意这里是step-1(与huggingface对比)
-    float2 q_rotate = GetRoPEres(q[q_offset], q[q_offset + head_size / 2], cos_sin);
-    float2 k_rotate = make_float2(0,0);
-    k_rotate.x = cos_sin.x * k_reg - cos_sin.y * k_rotate_reg;
-    k_rotate.y = cos_sin.x * k_rotate_reg + cos_sin.y * k_reg;
+    // 3.RoPE - 转换为float进行数学计算以保证精度
+    // 读取Q和K的值并转换为float
+    float q_val_f = convertToFloat(q[q_offset]);
+    float q_rotate_val_f = convertToFloat(q[q_offset + head_size / 2]);
+    float k_val_f = convertToFloat(k[k_offset]);
+    float k_rotate_val_f = convertToFloat(k[k_offset + head_size / 2]);
+    
+    // 获取RoPE系数（注意这里是step-1与huggingface对比）
+    float2 cos_sin = GetRoPEfreq(tid * 2, rotary_embedding_dim, rotary_embedding_base, step - 1);
+    
+    // 在float精度下进行RoPE计算
+    float2 q_rotate = GetRoPEres(q_val_f, q_rotate_val_f, cos_sin);
+    float2 k_rotate = make_float2(0, 0);
+    k_rotate.x = cos_sin.x * k_val_f - cos_sin.y * k_rotate_val_f;
+    k_rotate.y = cos_sin.x * k_rotate_val_f + cos_sin.y * k_val_f;
 
-    // 4.write back
-    q[q_offset] = q_rotate.x;
-    q[q_offset + head_size / 2] = q_rotate.y;
-    k[k_offset] = k_rotate.x;
-    k[k_offset + head_size / 2] = k_rotate.y;
+    // 4.write back - 将计算结果转换回目标类型
+    q[q_offset] = convertFromFloat<T>(q_rotate.x);
+    q[q_offset + head_size / 2] = convertFromFloat<T>(q_rotate.y);
+    k[k_offset] = convertFromFloat<T>(k_rotate.x);
+    k[k_offset + head_size / 2] = convertFromFloat<T>(k_rotate.y);
 }
 
 template<typename T>
@@ -251,10 +304,14 @@ void launchRoPE(TensorWrapper<T>* qkv_buf,
 #endif
 }
 
+// 添加所有类型的模板实例化
 template void launchRoPE(TensorWrapper<float>* qkv_buf,
                         TensorWrapper<int>* step,
                         LLaMAAttentionStaticParams& static_params);
 template void launchRoPE(TensorWrapper<half>* qkv_buf,
+                        TensorWrapper<int>* step,
+                        LLaMAAttentionStaticParams& static_params);
+template void launchRoPE(TensorWrapper<int8_t>* qkv_buf,
                         TensorWrapper<int>* step,
                         LLaMAAttentionStaticParams& static_params);
 

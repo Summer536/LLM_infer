@@ -20,13 +20,50 @@ __global__ void SamplingKernel(int* topk_id,
     int tid = threadIdx.x;
     int offset = batch_id * K + tid; 
 
-    T max_val = topk_val[batch_id * K]; 
-    topk_val[offset] = (T)(expf((float)topk_val[offset] - (float)max_val)); 
+    // Convert to float for computation, especially important for INT8
+    float max_val_f;
+    if constexpr (std::is_same_v<T, int8_t>) {
+        max_val_f = static_cast<float>(topk_val[batch_id * K]) * INT8_INV_SCALE_FACTOR;
+    } else if constexpr (std::is_same_v<T, half>) {
+        max_val_f = __half2float(topk_val[batch_id * K]);
+    } else {
+        max_val_f = static_cast<float>(topk_val[batch_id * K]);
+    }
+    
+    // Apply softmax: subtract max and take exp, store back in appropriate format
+    float current_val_f;
+    if constexpr (std::is_same_v<T, int8_t>) {
+        current_val_f = static_cast<float>(topk_val[offset]) * INT8_INV_SCALE_FACTOR;
+    } else if constexpr (std::is_same_v<T, half>) {
+        current_val_f = __half2float(topk_val[offset]);
+    } else {
+        current_val_f = static_cast<float>(topk_val[offset]);
+    }
+    
+    float exp_val = expf(current_val_f - max_val_f);
+    
+    // Store back in original format
+    if constexpr (std::is_same_v<T, int8_t>) {
+        topk_val[offset] = static_cast<T>(__float2int_rn(exp_val * INT8_SCALE_FACTOR));
+    } else if constexpr (std::is_same_v<T, half>) {
+        topk_val[offset] = __float2half(exp_val);
+    } else {
+        topk_val[offset] = static_cast<T>(exp_val);
+    }
+    
     __shared__ float thredhold, sum;
     if(tid == 0) {
         sum = 0.0f;
         for(int i = 0; i < K; i++) {
-            sum += (float)topk_val[batch_id * K + i];
+            float val_f;
+            if constexpr (std::is_same_v<T, int8_t>) {
+                val_f = static_cast<float>(topk_val[batch_id * K + i]) * INT8_INV_SCALE_FACTOR;
+            } else if constexpr (std::is_same_v<T, half>) {
+                val_f = __half2float(topk_val[batch_id * K + i]);
+            } else {
+                val_f = static_cast<float>(topk_val[batch_id * K + i]);
+            }
+            sum += val_f;
         }
 
         curandState_t state;  
@@ -37,7 +74,16 @@ __global__ void SamplingKernel(int* topk_id,
         output_id[bid] = topk_id[bid * K] % vocab_size; 
 
         for(int i = 0; i < K; i++) {
-            thredhold = thredhold - (float)topk_val[batch_id * K + i];
+            float val_f;
+            if constexpr (std::is_same_v<T, int8_t>) {
+                val_f = static_cast<float>(topk_val[batch_id * K + i]) * INT8_INV_SCALE_FACTOR;
+            } else if constexpr (std::is_same_v<T, half>) {
+                val_f = __half2float(topk_val[batch_id * K + i]);
+            } else {
+                val_f = static_cast<float>(topk_val[batch_id * K + i]);
+            }
+            
+            thredhold = thredhold - val_f;
             if(thredhold < 0) { 
                 output_id[bid] = topk_id[batch_id * K + i] % vocab_size; 
                 break;
@@ -85,6 +131,13 @@ template void launchSampling(TensorWrapper<int>* topk_id,
 
 template void launchSampling(TensorWrapper<int>* topk_id,
                             TensorWrapper<half>* topk_val,
+                            TensorWrapper<int>* seqlen,
+                            TensorWrapper<bool>* is_finished,
+                            TensorWrapper<int>* output_id,
+                            IntDict& params);
+
+template void launchSampling(TensorWrapper<int>* topk_id,
+                            TensorWrapper<int8_t>* topk_val,
                             TensorWrapper<int>* seqlen,
                             TensorWrapper<bool>* is_finished,
                             TensorWrapper<int>* output_id,

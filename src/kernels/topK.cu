@@ -129,3 +129,9 @@ template void launchTopKforBeamSearch(TensorWrapper<half> *probs,
                              TensorWrapper<half> *topk_vals,
                              TensorWrapper<int> *final_topk_ids,
                              TensorWrapper<half> *final_topk_vals);
+
+template void launchTopKforBeamSearch(TensorWrapper<int8_t> *probs,
+                             TensorWrapper<int> *topk_ids,
+                             TensorWrapper<int8_t> *topk_vals,
+                             TensorWrapper<int> *final_topk_ids,
+                             TensorWrapper<int8_t> *final_topk_vals);

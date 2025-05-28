@@ -48,10 +48,30 @@ __global__ void RMSNorm(T *decoder_out,
         Vec_t vec = dout[idx];
         rsd[idx] = vec;
 
-        thread_sum += vec.x * vec.x;
-        thread_sum += vec.y * vec.y;
-        thread_sum += vec.z * vec.z;
-        thread_sum += vec.w * vec.w;
+        // For different data types, we need to accumulate in float precision
+        if constexpr (std::is_same_v<T, int8_t>) {
+            // INT8: dequantize to float for computation
+            float val_x = static_cast<float>(vec.x) * INT8_INV_SCALE_FACTOR;
+            float val_y = static_cast<float>(vec.y) * INT8_INV_SCALE_FACTOR;
+            float val_z = static_cast<float>(vec.z) * INT8_INV_SCALE_FACTOR;
+            float val_w = static_cast<float>(vec.w) * INT8_INV_SCALE_FACTOR;
+            thread_sum += val_x * val_x;
+            thread_sum += val_y * val_y;
+            thread_sum += val_z * val_z;
+            thread_sum += val_w * val_w;
+        } else if constexpr (std::is_same_v<T, half>) {
+            // FP16: convert to float for computation
+            float val_x = __half2float(vec.x);
+            float val_y = __half2float(vec.y);
+            thread_sum += val_x * val_x;
+            thread_sum += val_y * val_y;
+        } else {
+            // FP32: direct computation
+            thread_sum += vec.x * vec.x;
+            thread_sum += vec.y * vec.y;
+            thread_sum += vec.z * vec.z;
+            thread_sum += vec.w * vec.w;
+        }
     }
 
     thread_sum = blockReduceSum<float>(thread_sum);
@@ -65,15 +85,41 @@ __global__ void RMSNorm(T *decoder_out,
     Vec_t *s = reinterpret_cast<Vec_t*>(scale);
     for(int idx = threadIdx.x; idx < hidden_units / Vec<T>::size; idx += blockDim.x){
         Vec_t out = dout[idx];
-        dout[idx].x = out.x * inv_mean * s[idx].x;
-        dout[idx].y = out.y * inv_mean * s[idx].y;
-        dout[idx].z = out.z * inv_mean * s[idx].z;
-        dout[idx].w = out.w * inv_mean * s[idx].w;
+        
+        if constexpr (std::is_same_v<T, int8_t>) {
+            // INT8: dequantize -> compute -> quantize
+            float val_x = static_cast<float>(out.x) * INT8_INV_SCALE_FACTOR;
+            float val_y = static_cast<float>(out.y) * INT8_INV_SCALE_FACTOR;
+            float val_z = static_cast<float>(out.z) * INT8_INV_SCALE_FACTOR;
+            float val_w = static_cast<float>(out.w) * INT8_INV_SCALE_FACTOR;
+            
+            float scale_x = static_cast<float>(s[idx].x) * INT8_INV_SCALE_FACTOR;
+            float scale_y = static_cast<float>(s[idx].y) * INT8_INV_SCALE_FACTOR;
+            float scale_z = static_cast<float>(s[idx].z) * INT8_INV_SCALE_FACTOR;
+            float scale_w = static_cast<float>(s[idx].w) * INT8_INV_SCALE_FACTOR;
+            
+            dout[idx].x = static_cast<int8_t>(__float2int_rn(val_x * inv_mean * scale_x * INT8_SCALE_FACTOR));
+            dout[idx].y = static_cast<int8_t>(__float2int_rn(val_y * inv_mean * scale_y * INT8_SCALE_FACTOR));
+            dout[idx].z = static_cast<int8_t>(__float2int_rn(val_z * inv_mean * scale_z * INT8_SCALE_FACTOR));
+            dout[idx].w = static_cast<int8_t>(__float2int_rn(val_w * inv_mean * scale_w * INT8_SCALE_FACTOR));
+        } else if constexpr (std::is_same_v<T, half>) {
+            // FP16: convert to float for computation, then back to half
+            float val_x = __half2float(out.x);
+            float val_y = __half2float(out.y);
+            float scale_x = __half2float(s[idx].x);
+            float scale_y = __half2float(s[idx].y);
+            
+            dout[idx].x = __float2half(val_x * inv_mean * scale_x);
+            dout[idx].y = __float2half(val_y * inv_mean * scale_y);
+        } else {
+            // FP32: direct computation
+            dout[idx].x = out.x * inv_mean * s[idx].x;
+            dout[idx].y = out.y * inv_mean * s[idx].y;
+            dout[idx].z = out.z * inv_mean * s[idx].z;
+            dout[idx].w = out.w * inv_mean * s[idx].w;
+        }
     }   
 }
-
-
-
 
 template <typename T>
 void launchRMSNorm(TensorWrapper<T> * decoder_out,
@@ -100,5 +146,15 @@ template void launchRMSNorm<float>(TensorWrapper<float> * decoder_out,
                                    LayerNormWeight<float>& attn_norm_weight,
                                    float eps,
                                    bool is_last);
+template void launchRMSNorm<half>(TensorWrapper<half> * decoder_out,
+                                  TensorWrapper<half> * decoder_residual,
+                                  LayerNormWeight<half>& attn_norm_weight,
+                                  float eps,
+                                  bool is_last);
+template void launchRMSNorm<int8_t>(TensorWrapper<int8_t> * decoder_out,
+                                     TensorWrapper<int8_t> * decoder_residual,
+                                     LayerNormWeight<int8_t>& attn_norm_weight,
+                                     float eps,
+                                     bool is_last);
                                    
                                    

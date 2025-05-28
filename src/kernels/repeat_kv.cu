@@ -105,3 +105,9 @@ template void launchRepeatKVCache(TensorWrapper<half> *k_cache_src,
                                   TensorWrapper<int> *layer_id,
                                   TensorWrapper<half> *k_cache_dst,
                                   TensorWrapper<half> *v_cache_dst);
+template void launchRepeatKVCache(TensorWrapper<int8_t> *k_cache_src,
+                                  TensorWrapper<int8_t> *v_cache_src,
+                                  TensorWrapper<int> *context_length,
+                                  TensorWrapper<int> *layer_id,
+                                  TensorWrapper<int8_t> *k_cache_dst,
+                                  TensorWrapper<int8_t> *v_cache_dst);

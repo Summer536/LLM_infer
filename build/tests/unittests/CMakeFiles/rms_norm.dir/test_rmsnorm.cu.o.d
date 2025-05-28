@@ -298,6 +298,7 @@ tests/unittests/CMakeFiles/rms_norm.dir/test_rmsnorm.cu.o : /home/yqgao/LLM_infe
     /usr/include/c++/11/bits/ostream.tcc \
     /usr/include/c++/11/istream \
     /usr/include/c++/11/bits/istream.tcc \
+    /usr/include/c++/11/cstring \
     /home/yqgao/LLM_inference/LLM_interview/src/kernels/rmsnorm_kernel.h \
     /usr/local/cuda-12.5/include/cuda_fp16.h \
     /usr/local/cuda-12.5/include/nv/target \

@@ -301,6 +301,7 @@ tests/unittests/CMakeFiles/biasRope.dir/test_bias_and_RoPE.cu.o: ../tests/unitte
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/istream \
   /usr/include/c++/11/bits/istream.tcc \
+  /usr/include/c++/11/cstring \
   ../src/kernels/qkv_bias_and_RoPE.h \
   /usr/local/cuda-12.5/include/cuda.h \
   /usr/local/cuda-12.5/include/cuda_fp16.h \
@@ -731,6 +732,8 @@ tests/unittests/CMakeFiles/biasRope.dir/test_bias_and_RoPE.cu.o: ../tests/unitte
 /usr/local/cuda-12.5/include/sm_61_intrinsics.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
+
+/usr/include/c++/11/cstring:
 
 /usr/include/math.h:
 
