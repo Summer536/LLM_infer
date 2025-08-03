@@ -36,7 +36,7 @@ __inline__ __device__ T blockReduce(T val)
     int warp_id = tid / 32;
     int lane_id = tid % 32;
     int warp_nums = (blockDim.x + 31) / 32;
-    static __shared__ T warp[64];
+    static __shared__ T warp[64]; // generally 32 is max warp nums, this 64 can be changed to 32
     val = warpReduce<ReductionOp, T>(val);
     if (lane_id == 0)
     {
