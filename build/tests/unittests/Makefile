@@ -159,18 +159,18 @@ paddingoffset/fast:
 .PHONY : paddingoffset/fast
 
 # Convenience name for target.
-tests/unittests/CMakeFiles/test_causal_mask.dir/rule:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_causal_mask.dir/rule
-.PHONY : tests/unittests/CMakeFiles/test_causal_mask.dir/rule
+tests/unittests/CMakeFiles/causalmask.dir/rule:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/causalmask.dir/rule
+.PHONY : tests/unittests/CMakeFiles/causalmask.dir/rule
 
 # Convenience name for target.
-test_causal_mask: tests/unittests/CMakeFiles/test_causal_mask.dir/rule
-.PHONY : test_causal_mask
+causalmask: tests/unittests/CMakeFiles/causalmask.dir/rule
+.PHONY : causalmask
 
 # fast build rule for target.
-test_causal_mask/fast:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/build
-.PHONY : test_causal_mask/fast
+causalmask/fast:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/build
+.PHONY : causalmask/fast
 
 # Convenience name for target.
 tests/unittests/CMakeFiles/testlinear.dir/rule:
@@ -185,6 +185,34 @@ testlinear: tests/unittests/CMakeFiles/testlinear.dir/rule
 testlinear/fast:
 	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/testlinear.dir/build.make tests/unittests/CMakeFiles/testlinear.dir/build
 .PHONY : testlinear/fast
+
+# Convenience name for target.
+tests/unittests/CMakeFiles/debug.dir/rule:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/debug.dir/rule
+.PHONY : tests/unittests/CMakeFiles/debug.dir/rule
+
+# Convenience name for target.
+debug: tests/unittests/CMakeFiles/debug.dir/rule
+.PHONY : debug
+
+# fast build rule for target.
+debug/fast:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/build
+.PHONY : debug/fast
+
+# Convenience name for target.
+tests/unittests/CMakeFiles/bmm.dir/rule:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/bmm.dir/rule
+.PHONY : tests/unittests/CMakeFiles/bmm.dir/rule
+
+# Convenience name for target.
+bmm: tests/unittests/CMakeFiles/bmm.dir/rule
+.PHONY : bmm
+
+# fast build rule for target.
+bmm/fast:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/build
+.PHONY : bmm/fast
 
 # Convenience name for target.
 tests/unittests/CMakeFiles/biasRope.dir/rule:
@@ -388,6 +416,30 @@ test_bias_and_RoPE.cu.s:
 	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/biasRope.dir/build.make tests/unittests/CMakeFiles/biasRope.dir/test_bias_and_RoPE.cu.s
 .PHONY : test_bias_and_RoPE.cu.s
 
+test_bmm.o: test_bmm.cu.o
+.PHONY : test_bmm.o
+
+# target to build an object file
+test_bmm.cu.o:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/test_bmm.cu.o
+.PHONY : test_bmm.cu.o
+
+test_bmm.i: test_bmm.cu.i
+.PHONY : test_bmm.i
+
+# target to preprocess a source file
+test_bmm.cu.i:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/test_bmm.cu.i
+.PHONY : test_bmm.cu.i
+
+test_bmm.s: test_bmm.cu.s
+.PHONY : test_bmm.s
+
+# target to generate assembly for a file
+test_bmm.cu.s:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/test_bmm.cu.s
+.PHONY : test_bmm.cu.s
+
 test_cal_paddingoffset.o: test_cal_paddingoffset.cu.o
 .PHONY : test_cal_paddingoffset.o
 
@@ -412,29 +464,29 @@ test_cal_paddingoffset.cu.s:
 	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/paddingoffset.dir/build.make tests/unittests/CMakeFiles/paddingoffset.dir/test_cal_paddingoffset.cu.s
 .PHONY : test_cal_paddingoffset.cu.s
 
-test_causal_mask.o: test_causal_mask.cu.o
-.PHONY : test_causal_mask.o
+test_casual_mask.o: test_casual_mask.cu.o
+.PHONY : test_casual_mask.o
 
 # target to build an object file
-test_causal_mask.cu.o:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/test_causal_mask.cu.o
-.PHONY : test_causal_mask.cu.o
+test_casual_mask.cu.o:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/test_casual_mask.cu.o
+.PHONY : test_casual_mask.cu.o
 
-test_causal_mask.i: test_causal_mask.cu.i
-.PHONY : test_causal_mask.i
+test_casual_mask.i: test_casual_mask.cu.i
+.PHONY : test_casual_mask.i
 
 # target to preprocess a source file
-test_causal_mask.cu.i:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/test_causal_mask.cu.i
-.PHONY : test_causal_mask.cu.i
+test_casual_mask.cu.i:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/test_casual_mask.cu.i
+.PHONY : test_casual_mask.cu.i
 
-test_causal_mask.s: test_causal_mask.cu.s
-.PHONY : test_causal_mask.s
+test_casual_mask.s: test_casual_mask.cu.s
+.PHONY : test_casual_mask.s
 
 # target to generate assembly for a file
-test_causal_mask.cu.s:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/test_causal_mask.cu.s
-.PHONY : test_causal_mask.cu.s
+test_casual_mask.cu.s:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/test_casual_mask.cu.s
+.PHONY : test_casual_mask.cu.s
 
 test_concat_kv.o: test_concat_kv.cu.o
 .PHONY : test_concat_kv.o
@@ -459,6 +511,30 @@ test_concat_kv.s: test_concat_kv.cu.s
 test_concat_kv.cu.s:
 	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_concat_kv.dir/build.make tests/unittests/CMakeFiles/test_concat_kv.dir/test_concat_kv.cu.s
 .PHONY : test_concat_kv.cu.s
+
+test_data_compare.o: test_data_compare.cu.o
+.PHONY : test_data_compare.o
+
+# target to build an object file
+test_data_compare.cu.o:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/test_data_compare.cu.o
+.PHONY : test_data_compare.cu.o
+
+test_data_compare.i: test_data_compare.cu.i
+.PHONY : test_data_compare.i
+
+# target to preprocess a source file
+test_data_compare.cu.i:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/test_data_compare.cu.i
+.PHONY : test_data_compare.cu.i
+
+test_data_compare.s: test_data_compare.cu.s
+.PHONY : test_data_compare.s
+
+# target to generate assembly for a file
+test_data_compare.cu.s:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/test_data_compare.cu.s
+.PHONY : test_data_compare.cu.s
 
 test_fused_addresidual_norm.o: test_fused_addresidual_norm.cu.o
 .PHONY : test_fused_addresidual_norm.o
@@ -733,11 +809,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... biasRope"
+	@echo "... bmm"
+	@echo "... causalmask"
+	@echo "... debug"
 	@echo "... embedding"
 	@echo "... paddingoffset"
 	@echo "... rms_norm"
 	@echo "... test_act"
-	@echo "... test_causal_mask"
 	@echo "... test_concat_kv"
 	@echo "... test_fused_addresidual_norm"
 	@echo "... test_fused_decoder_attention"
@@ -754,15 +832,21 @@ help:
 	@echo "... test_bias_and_RoPE.o"
 	@echo "... test_bias_and_RoPE.i"
 	@echo "... test_bias_and_RoPE.s"
+	@echo "... test_bmm.o"
+	@echo "... test_bmm.i"
+	@echo "... test_bmm.s"
 	@echo "... test_cal_paddingoffset.o"
 	@echo "... test_cal_paddingoffset.i"
 	@echo "... test_cal_paddingoffset.s"
-	@echo "... test_causal_mask.o"
-	@echo "... test_causal_mask.i"
-	@echo "... test_causal_mask.s"
+	@echo "... test_casual_mask.o"
+	@echo "... test_casual_mask.i"
+	@echo "... test_casual_mask.s"
 	@echo "... test_concat_kv.o"
 	@echo "... test_concat_kv.i"
 	@echo "... test_concat_kv.s"
+	@echo "... test_data_compare.o"
+	@echo "... test_data_compare.i"
+	@echo "... test_data_compare.s"
 	@echo "... test_fused_addresidual_norm.o"
 	@echo "... test_fused_addresidual_norm.i"
 	@echo "... test_fused_addresidual_norm.s"

@@ -1,8 +1,7 @@
 #include <iostream>
 #include "src/weights/llama/llama_weights.h"
-
 template<typename T>
-LlamaWeight<T>::LlamaWeight(   
+LlamaWeight<T>::LlamaWeight(
     int     head_num,
     int     kv_head_num,
     int     head_size,
@@ -11,17 +10,17 @@ LlamaWeight<T>::LlamaWeight(
     int     num_layer,
     bool    attn_bias,
     WeightType weight_type
-):  
-    hidden_units(head_num * head_size),  
+):
+    hidden_units(head_num * head_size),
     inter_size(inter_size),
     vocab_size(vocab_size),
     vocab_size_padded(vocab_size),
     num_layer(num_layer),
     weight_type(weight_type) 
-{   
+{
     llama_layer_weight.reserve(num_layer);
-    for (int l = 0; l < num_layer; ++l) { 
-        llama_layer_weight.push_back(new LlamaLayerWeight<T>(head_num, 
+    for (int l = 0; l < num_layer; ++l) {
+        llama_layer_weight.push_back(new LlamaLayerWeight<T>(head_num,
                                                             kv_head_num,
                                                             head_size,
                                                             inter_size,
@@ -29,25 +28,22 @@ LlamaWeight<T>::LlamaWeight(
                                                             //group_size,
                                                             attn_bias));
     }
-    GPUMalloc(&out_rmsnorm_weight.gamma, hidden_units);  
+    GPUMalloc(&out_rmsnorm_weight.gamma, hidden_units);
     GPUMalloc(&post_decoder_embedding_weight.data, vocab_size * hidden_units);
     GPUMalloc(&pre_decoder_embedding_weight.data, vocab_size * hidden_units);
-    pre_decoder_embedding_weight.shape = {vocab_size, hidden_units}; 
+    pre_decoder_embedding_weight.shape = {vocab_size, hidden_units};
     post_decoder_embedding_weight.shape = {vocab_size, hidden_units};
-    pre_decoder_embedding_weight.type = weight_type; 
+    pre_decoder_embedding_weight.type = weight_type;
     post_decoder_embedding_weight.type = weight_type;
 }
-
-
-// weight from HF is always half type, and if we want run fp32 inference, we should convert half weight to fp32 weight in tools/weights_convert.py 
-// shape and data of embedding and LMHead weight downloaded form HF are transposed, so we should carefully declare shape here
-///////////////////////////////////////////////////////////这个函数是要读取python脚本转换好的.bin文件//////////////////////////////////////////////////////////////////////////
+// (RussWong)note: weight from HF is always half type, and if we want run fp32 inference, we should convert half weight to fp32 weight in tools/weights_convert.py 
+// (RussWong)note: shape and data of embedding and LMHead weight downloaded form HF are transposed, so we should carefully declare shape here
 template<typename T>
-void LlamaWeight<T>::loadWeights(std::string weight_path) { 
-    loadWeightFromBin<T, float>::internalFunc(out_rmsnorm_weight.gamma, {(size_t)hidden_units}, weight_path + "model.norm.weight.bin"); 
+void LlamaWeight<T>::loadWeights(std::string weight_path) {
+    loadWeightFromBin<T, float>::internalFunc(out_rmsnorm_weight.gamma, {(size_t)hidden_units}, weight_path + "model.norm.weight.bin");
     loadWeightFromBin<T, float>::internalFunc(post_decoder_embedding_weight.data, {(size_t)vocab_size, (size_t)hidden_units}, weight_path + "lm_head.weight.bin");
     loadWeightFromBin<T, float>::internalFunc(pre_decoder_embedding_weight.data, {(size_t)vocab_size, (size_t)hidden_units}, weight_path + "model.embed_tokens.weight.bin");
-    for (int layer = 0; layer < num_layer; ++layer) { 
+    for (int layer = 0; layer < num_layer; ++layer) {
         llama_layer_weight[layer]->loadWeights(weight_path + "model.layers." + std::to_string(layer), weight_type);
     }
 }

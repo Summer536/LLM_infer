@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../lib/liblinear.a"
   "../../lib/liblinear.pdb"
+  "CMakeFiles/linear.dir/cmake_device_link.o"
   "CMakeFiles/linear.dir/linear.cu.o"
   "CMakeFiles/linear.dir/linear.cu.o.d"
 )

@@ -130,6 +130,19 @@ llmengine/fast:
 .PHONY : llmengine/fast
 
 #=============================================================================
+# Target rules for targets named main
+
+# Build rule for target.
+main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 main
+.PHONY : main
+
+# fast build rule for target.
+main/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
+.PHONY : main/fast
+
+#=============================================================================
 # Target rules for targets named layerweights
 
 # Build rule for target.
@@ -195,17 +208,17 @@ cal_paddingoffset/fast:
 .PHONY : cal_paddingoffset/fast
 
 #=============================================================================
-# Target rules for targets named build_causal_mask
+# Target rules for targets named build_casual_mask
 
 # Build rule for target.
-build_causal_mask: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 build_causal_mask
-.PHONY : build_causal_mask
+build_casual_mask: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 build_casual_mask
+.PHONY : build_casual_mask
 
 # fast build rule for target.
-build_causal_mask/fast:
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/build
-.PHONY : build_causal_mask/fast
+build_casual_mask/fast:
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/build
+.PHONY : build_casual_mask/fast
 
 #=============================================================================
 # Target rules for targets named cublasWrapper
@@ -325,17 +338,17 @@ act/fast:
 .PHONY : act/fast
 
 #=============================================================================
-# Target rules for targets named topK
+# Target rules for targets named topk
 
 # Build rule for target.
-topK: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 topK
-.PHONY : topK
+topk: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 topk
+.PHONY : topk
 
 # fast build rule for target.
-topK/fast:
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/build
-.PHONY : topK/fast
+topk/fast:
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/build
+.PHONY : topk/fast
 
 #=============================================================================
 # Target rules for targets named fused_decoder_self_attention
@@ -507,17 +520,17 @@ paddingoffset/fast:
 .PHONY : paddingoffset/fast
 
 #=============================================================================
-# Target rules for targets named test_causal_mask
+# Target rules for targets named causalmask
 
 # Build rule for target.
-test_causal_mask: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_causal_mask
-.PHONY : test_causal_mask
+causalmask: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 causalmask
+.PHONY : causalmask
 
 # fast build rule for target.
-test_causal_mask/fast:
-	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/build
-.PHONY : test_causal_mask/fast
+causalmask/fast:
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/build
+.PHONY : causalmask/fast
 
 #=============================================================================
 # Target rules for targets named testlinear
@@ -531,6 +544,32 @@ testlinear: cmake_check_build_system
 testlinear/fast:
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/testlinear.dir/build.make tests/unittests/CMakeFiles/testlinear.dir/build
 .PHONY : testlinear/fast
+
+#=============================================================================
+# Target rules for targets named debug
+
+# Build rule for target.
+debug: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 debug
+.PHONY : debug
+
+# fast build rule for target.
+debug/fast:
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/build
+.PHONY : debug/fast
+
+#=============================================================================
+# Target rules for targets named bmm
+
+# Build rule for target.
+bmm: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bmm
+.PHONY : bmm
+
+# fast build rule for target.
+bmm/fast:
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/build
+.PHONY : bmm/fast
 
 #=============================================================================
 # Target rules for targets named biasRope
@@ -747,29 +786,29 @@ src/kernels/attn_softmax_kernel.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/attn_softmax_kernel.cu.s
 .PHONY : src/kernels/attn_softmax_kernel.cu.s
 
-src/kernels/build_causal_mask.o: src/kernels/build_causal_mask.cu.o
-.PHONY : src/kernels/build_causal_mask.o
+src/kernels/build_casual_mask.o: src/kernels/build_casual_mask.cu.o
+.PHONY : src/kernels/build_casual_mask.o
 
 # target to build an object file
-src/kernels/build_causal_mask.cu.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o
-.PHONY : src/kernels/build_causal_mask.cu.o
+src/kernels/build_casual_mask.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o
+.PHONY : src/kernels/build_casual_mask.cu.o
 
-src/kernels/build_causal_mask.i: src/kernels/build_causal_mask.cu.i
-.PHONY : src/kernels/build_causal_mask.i
+src/kernels/build_casual_mask.i: src/kernels/build_casual_mask.cu.i
+.PHONY : src/kernels/build_casual_mask.i
 
 # target to preprocess a source file
-src/kernels/build_causal_mask.cu.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.i
-.PHONY : src/kernels/build_causal_mask.cu.i
+src/kernels/build_casual_mask.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.i
+.PHONY : src/kernels/build_casual_mask.cu.i
 
-src/kernels/build_causal_mask.s: src/kernels/build_causal_mask.cu.s
-.PHONY : src/kernels/build_causal_mask.s
+src/kernels/build_casual_mask.s: src/kernels/build_casual_mask.cu.s
+.PHONY : src/kernels/build_casual_mask.s
 
 # target to generate assembly for a file
-src/kernels/build_causal_mask.cu.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.s
-.PHONY : src/kernels/build_causal_mask.cu.s
+src/kernels/build_casual_mask.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.s
+.PHONY : src/kernels/build_casual_mask.cu.s
 
 src/kernels/cal_paddingoffset.o: src/kernels/cal_paddingoffset.cu.o
 .PHONY : src/kernels/cal_paddingoffset.o
@@ -1083,6 +1122,30 @@ src/kernels/topK.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/topK.cu.s
 .PHONY : src/kernels/topK.cu.s
 
+src/kernels/topK_bk.o: src/kernels/topK_bk.cu.o
+.PHONY : src/kernels/topK_bk.o
+
+# target to build an object file
+src/kernels/topK_bk.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o
+.PHONY : src/kernels/topK_bk.cu.o
+
+src/kernels/topK_bk.i: src/kernels/topK_bk.cu.i
+.PHONY : src/kernels/topK_bk.i
+
+# target to preprocess a source file
+src/kernels/topK_bk.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.i
+.PHONY : src/kernels/topK_bk.cu.i
+
+src/kernels/topK_bk.s: src/kernels/topK_bk.cu.s
+.PHONY : src/kernels/topK_bk.s
+
+# target to generate assembly for a file
+src/kernels/topK_bk.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.s
+.PHONY : src/kernels/topK_bk.cu.s
+
 src/layers/attention/context_attention.o: src/layers/attention/context_attention.cpp.o
 .PHONY : src/layers/attention/context_attention.o
 
@@ -1299,6 +1362,30 @@ src/weights/llama/llama_weights.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/src/weights/llama/llama_weights.cc.s
 .PHONY : src/weights/llama/llama_weights.cc.s
 
+user_entry.o: user_entry.cpp.o
+.PHONY : user_entry.o
+
+# target to build an object file
+user_entry.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/user_entry.cpp.o
+.PHONY : user_entry.cpp.o
+
+user_entry.i: user_entry.cpp.i
+.PHONY : user_entry.i
+
+# target to preprocess a source file
+user_entry.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/user_entry.cpp.i
+.PHONY : user_entry.cpp.i
+
+user_entry.s: user_entry.cpp.s
+.PHONY : user_entry.s
+
+# target to generate assembly for a file
+user_entry.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/user_entry.cpp.s
+.PHONY : user_entry.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1316,10 +1403,13 @@ help:
 	@echo "... act"
 	@echo "... add_residual"
 	@echo "... biasRope"
-	@echo "... build_causal_mask"
+	@echo "... bmm"
+	@echo "... build_casual_mask"
 	@echo "... cal_paddingoffset"
+	@echo "... causalmask"
 	@echo "... concat_kv"
 	@echo "... cublasWrapper"
+	@echo "... debug"
 	@echo "... embedding"
 	@echo "... embeddingFunctor"
 	@echo "... fused_addresidual_norm"
@@ -1329,6 +1419,7 @@ help:
 	@echo "... linear"
 	@echo "... llamaweights"
 	@echo "... llmengine"
+	@echo "... main"
 	@echo "... mask_softmax"
 	@echo "... paddingoffset"
 	@echo "... qkv_bias_and_rope"
@@ -1337,7 +1428,6 @@ help:
 	@echo "... rmsnorm"
 	@echo "... sampling"
 	@echo "... test_act"
-	@echo "... test_causal_mask"
 	@echo "... test_concat_kv"
 	@echo "... test_fused_addresidual_norm"
 	@echo "... test_fused_decoder_attention"
@@ -1348,7 +1438,7 @@ help:
 	@echo "... test_sampling"
 	@echo "... test_topk"
 	@echo "... testlinear"
-	@echo "... topK"
+	@echo "... topk"
 	@echo "... weightutils"
 	@echo "... src/kernels/act_kernel.o"
 	@echo "... src/kernels/act_kernel.i"
@@ -1359,9 +1449,9 @@ help:
 	@echo "... src/kernels/attn_softmax_kernel.o"
 	@echo "... src/kernels/attn_softmax_kernel.i"
 	@echo "... src/kernels/attn_softmax_kernel.s"
-	@echo "... src/kernels/build_causal_mask.o"
-	@echo "... src/kernels/build_causal_mask.i"
-	@echo "... src/kernels/build_causal_mask.s"
+	@echo "... src/kernels/build_casual_mask.o"
+	@echo "... src/kernels/build_casual_mask.i"
+	@echo "... src/kernels/build_casual_mask.s"
 	@echo "... src/kernels/cal_paddingoffset.o"
 	@echo "... src/kernels/cal_paddingoffset.i"
 	@echo "... src/kernels/cal_paddingoffset.s"
@@ -1401,6 +1491,9 @@ help:
 	@echo "... src/kernels/topK.o"
 	@echo "... src/kernels/topK.i"
 	@echo "... src/kernels/topK.s"
+	@echo "... src/kernels/topK_bk.o"
+	@echo "... src/kernels/topK_bk.i"
+	@echo "... src/kernels/topK_bk.s"
 	@echo "... src/layers/attention/context_attention.o"
 	@echo "... src/layers/attention/context_attention.i"
 	@echo "... src/layers/attention/context_attention.s"
@@ -1428,6 +1521,9 @@ help:
 	@echo "... src/weights/llama/llama_weights.o"
 	@echo "... src/weights/llama/llama_weights.i"
 	@echo "... src/weights/llama/llama_weights.s"
+	@echo "... user_entry.o"
+	@echo "... user_entry.i"
+	@echo "... user_entry.s"
 .PHONY : help
 
 

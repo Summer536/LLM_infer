@@ -128,7 +128,7 @@ def write_model(model_path, input_base_path, model_size, tokenizer_path=None, sa
     if num_shards == 1:
         # Not sharded
         # (The sharded implementation would also work, but this is simpler.)
-        loaded = torch.load(os.path.join(input_base_path, "consolidated.00.pth"), map_location="cpu")           #下载下来的文件最重要的就是这个.pth文件
+        loaded = torch.load(os.path.join(input_base_path, "consolidated.00.pth"), map_location="cpu")
     else:
         # Sharded
         loaded = [
@@ -138,23 +138,23 @@ def write_model(model_path, input_base_path, model_size, tokenizer_path=None, sa
     param_count = 0
     index_dict = {"weight_map": {}}
     for layer_i in range(n_layers):
-        filename = f"pytorch_model-{layer_i + 1}-of-{n_layers + 1}.bin"      # 对转换后的weights做一些保存的操作 #.bin就是binary 二进制文件
+        filename = f"pytorch_model-{layer_i + 1}-of-{n_layers + 1}.bin"
         if num_shards == 1:
             # Unsharded
-            state_dict = {              #################与我们PPT(lesson27)中的十个weights一一对应(除了第一个embedding weight，它在231行左右)#########################
-                f"model.layers.{layer_i}.self_attn.q_proj.weight": permute(   #q weights
+            state_dict = {
+                f"model.layers.{layer_i}.self_attn.q_proj.weight": permute(
                     loaded[f"layers.{layer_i}.attention.wq.weight"]
                 ),
-                f"model.layers.{layer_i}.self_attn.k_proj.weight": permute(   #k weights
+                f"model.layers.{layer_i}.self_attn.k_proj.weight": permute(
                     loaded[f"layers.{layer_i}.attention.wk.weight"]
                 ),
-                f"model.layers.{layer_i}.self_attn.v_proj.weight": loaded[f"layers.{layer_i}.attention.wv.weight"],       #v weights
-                f"model.layers.{layer_i}.self_attn.o_proj.weight": loaded[f"layers.{layer_i}.attention.wo.weight"],       #outputlinear weights
-                f"model.layers.{layer_i}.mlp.gate_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w1.weight"],       #gate weights
-                f"model.layers.{layer_i}.mlp.down_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w2.weight"],       #down weights
-                f"model.layers.{layer_i}.mlp.up_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w3.weight"],         #up weights
-                f"model.layers.{layer_i}.input_layernorm.weight": loaded[f"layers.{layer_i}.attention_norm.weight"],      #输入的RMSnorm weights
-                f"model.layers.{layer_i}.post_attention_layernorm.weight": loaded[f"layers.{layer_i}.ffn_norm.weight"],   #尾部的RMSnorm weights
+                f"model.layers.{layer_i}.self_attn.v_proj.weight": loaded[f"layers.{layer_i}.attention.wv.weight"],
+                f"model.layers.{layer_i}.self_attn.o_proj.weight": loaded[f"layers.{layer_i}.attention.wo.weight"],
+                f"model.layers.{layer_i}.mlp.gate_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w1.weight"],
+                f"model.layers.{layer_i}.mlp.down_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w2.weight"],
+                f"model.layers.{layer_i}.mlp.up_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w3.weight"],
+                f"model.layers.{layer_i}.input_layernorm.weight": loaded[f"layers.{layer_i}.attention_norm.weight"],
+                f"model.layers.{layer_i}.post_attention_layernorm.weight": loaded[f"layers.{layer_i}.ffn_norm.weight"],
             }
         else:
             # Sharded
@@ -222,7 +222,7 @@ def write_model(model_path, input_base_path, model_size, tokenizer_path=None, sa
             param_count += v.numel()
         torch.save(state_dict, os.path.join(tmp_model_path, filename))
 
-    filename = f"pytorch_model-{n_layers + 1}-of-{n_layers + 1}.bin"            ################放到32个.bin文件中##############
+    filename = f"pytorch_model-{n_layers + 1}-of-{n_layers + 1}.bin"
     if num_shards == 1:
         # Unsharded
         state_dict = {

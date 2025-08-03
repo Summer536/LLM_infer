@@ -256,7 +256,7 @@ src/models/CMakeFiles/Llama.dir/llama/llama.cpp.o: \
  /home/yqgao/LLM_inference/LLM_interview/src/weights/llama/ffn_weights.h \
  /home/yqgao/LLM_inference/LLM_interview/src/utils/weight_utils.h \
  /home/yqgao/LLM_inference/LLM_interview/src/layers/decoder/context_decoder.h \
- /home/yqgao/LLM_inference/LLM_interview/src/kernels/build_causal_mask.h \
+ /home/yqgao/LLM_inference/LLM_interview/src/kernels/build_casual_mask.h \
  /home/yqgao/LLM_inference/LLM_interview/src/kernels/cal_paddingoffset.h \
  /home/yqgao/LLM_inference/LLM_interview/src/kernels/fused_addresidual_norm.h \
  /home/yqgao/LLM_inference/LLM_interview/src/utils/vectorize_utils.h \

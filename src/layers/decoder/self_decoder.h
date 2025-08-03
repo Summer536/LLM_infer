@@ -8,10 +8,11 @@
 #include "src/weights/llama/llama_weights.h"
 #include "src/utils/tensor.h"
 
+// layer weights is ready at the model_utils.h                                                                                                                                           by loadweights in onellm.cpp, outside of the decoder
 template <typename T>
 class LlamaSelfDecoder
 {
-private: 
+private:
     int head_num;
     int kv_head_num;
     int head_size;
@@ -20,18 +21,17 @@ private:
     int hidden_units;
     float rmsnorm_eps;
 
-    cudaStream_t stream; 
-    cublasWrapper *cublas_wrapper; 
-    BaseAllocator *allocator; 
+    cudaStream_t stream;
+    cublasWrapper *cublas_wrapper;
+    BaseAllocator *allocator;
 
-    TensorWrapper<T> *decoder_residual; 
+    TensorWrapper<T> *decoder_residual;
 
-    LLaMASelfAttentionLayer<T> *selfAttn; 
+    LLaMASelfAttentionLayer<T> *selfAttn;
     LLaMAFFNLayer<T> *ffn;
     DataType data_type;
 
 public:
-    // 构造函数
     LlamaSelfDecoder(int head_num,
                      int kv_head_num,
                      int head_size,

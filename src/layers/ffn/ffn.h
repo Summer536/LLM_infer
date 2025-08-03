@@ -8,7 +8,6 @@
 #include "src/models/llama/llama_params.h"
 #include "src/kernels/act_kernel.h"
 #include "src/utils/macro.h"
-
 template<typename T>
 class LLaMAFFNLayer {
 private:
@@ -21,11 +20,13 @@ private:
 
     cudaStream_t stream;
     BaseAllocator* allocator;
+    // for linear proj
     cublasWrapper* cublas_wrapper;
 
-    // shape: [2, num tokens, intersize]
+    // buffer
+    // [2, num tokens, intersize]
     TensorWrapper<T>*  SwiGLU_input = nullptr;  //gate proj and up proj output buf   
-    // shape: [num tokens, intersize] 
+    // [num tokens, intersize] 
     TensorWrapper<T>*  down_proj_input = nullptr;   
 
 
@@ -36,8 +37,9 @@ public:
                     cudaStream_t stream,
                     cublasWrapper* cublas_wrapper,
                     BaseAllocator* allocator);
+
     void allocForForward(LLaMAAttentionDynParams& params);
-    void allocForForward(int batch_size); 
+    void allocForForward(int batch_size);
     void freeBuf();
-    void forward(TensorMap& inputs, TensorMap& outputs, LLaMAFFNWeights<T>& weights, LLaMAAttentionDynParams& params); 
+    void forward(TensorMap& inputs, TensorMap& outputs, LLaMAFFNWeights<T>& weights, LLaMAAttentionDynParams& params);
 };

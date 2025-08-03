@@ -10,30 +10,21 @@
 #include "src/utils/tensor.h"
 #include "src/kernels/cublas_utils.h"
 #include "src/models/llama/llama_params.h"
-
-///////////////////////////////////////////整体实现思路是将layer封装成了一个类class/////////////////////////////////////////////
 template<typename T>
 class LLaMAContextAttentionLayer {
 private:
     // this params are shared across all LLMs
-    const int head_num;  
+    const int head_num;
     const int head_size;
-    const int hidden_units; //hidden_units = head_num * head_size
-
-    const int q_head_per_kv; // q_head_per_kv = q_head_num / kv_head_num
+    const int hidden_units;
+    const int q_head_per_kv; //for GQA and MQA
     const int kv_head_num;
-
-    // scale = sqrt(head_size)
-    float scale; 
-
+    float scale;
     // this params are only saw in llama and are unchanged 
-    LLaMAAttentionStaticParams attn_static_params;  
-
+    LLaMAAttentionStaticParams attn_static_params;
     cudaStream_t stream;
-
-    // allocator的指针，用于下方的allocForForward函数对下方的几个TensorWrapper<T>*分配内存
-    BaseAllocator* allocator; //位于(/sec/memory/allocator/base_allocator.h)中，allocator是指向BaseAllocator对象的指针
-
+    BaseAllocator* allocator;
+    // for linear and batchgemm
     cublasWrapper* cublas_wrapper;
 
     TensorWrapper<T>*  qkv_buf_wo_pad = nullptr;      
@@ -47,8 +38,6 @@ private:
     TensorWrapper<T>*  qkv_buf_wo_pad_1 = nullptr;      
 
 public:
-    ///////////////////////////////一些成员函数(public)///////////////////////////////////
-    // 1.构造函数
     LLaMAContextAttentionLayer(int head_num,
                                int kv_head_num,
                                int head_size,
@@ -59,10 +48,14 @@ public:
     LLaMAAttentionStaticParams& GetAttnStaticParams(){
         return attn_static_params;
     }
-    // 2.分配forward所需那些PPT上的九个中间变量的buffer
+    
     void allocForForward(LLaMAAttentionDynParams& params);
-    // 3.forward结束后释放所占用中间变量的buffer，除了输入输出buffer
     void freeBuf();
-    // 4.forward，即推理过程函数
     void forward(TensorMap& inputs, TensorMap& outputs, LLaMAattentionWeights<T>& weights, LLaMAAttentionDynParams& params, LLaMAAttentionStaticParams& static_params);
+    // whats the diff across these 3 max len:
+    // max_seq_len is the max kv len considering context, ep. multiple epochs chat
+    // max_q_len is the current max q len after padding in this batch
+    // all kv cache is max seq len to save all kv cache in all epochs, but in context attention, all kv cache should be broadcast to adapt q as kv cache buf whose shape is max k len
+    // so max k len is the max context len in cur batch  
+    // void flashAttn();
 };

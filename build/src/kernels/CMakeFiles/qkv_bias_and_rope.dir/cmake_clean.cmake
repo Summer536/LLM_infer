@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../lib/libqkv_bias_and_rope.a"
   "../../lib/libqkv_bias_and_rope.pdb"
+  "CMakeFiles/qkv_bias_and_rope.dir/cmake_device_link.o"
   "CMakeFiles/qkv_bias_and_rope.dir/qkv_bias_and_RoPE.cu.o"
   "CMakeFiles/qkv_bias_and_rope.dir/qkv_bias_and_RoPE.cu.o.d"
 )

@@ -2,24 +2,18 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-class BaseAllocator // unified interface for all derived allocator to alloc buffer
+class BaseAllocator 
 {
 public:
     virtual ~BaseAllocator(){};
-
-    ///////////////////////////malloc/cudamalloc//////////////////////
-
+    // unified interface for all derived allocator to alloc buffer
     template<typename T>
-    T* Malloc(T* ptr, size_t size, bool is_host){ 
-        return (T*)UnifyMalloc((void*)ptr, size, is_host); 
+    T* Malloc(T* ptr, size_t size, bool is_host){
+        return (T*)UnifyMalloc((void*)ptr, size, is_host);
     }
-
-    //纯虚函数
-    virtual void* UnifyMalloc(void* ptr, size_t size, bool is_host = false) = 0; 
-
-    ///////////////////////////free/cudafree//////////////////////
+    virtual void* UnifyMalloc(void* ptr, size_t size, bool is_host = false) = 0;
     template<typename T>
-    void Free(T* ptr, bool is_host = false){    
+    void Free(T* ptr, bool is_host = false){
         UnifyFree((void*)ptr, is_host);
     }
     virtual void UnifyFree(void* ptr, bool is_host = false) = 0;

@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../../lib/libLlamaCtxdecoder.a"
   "../../../lib/libLlamaCtxdecoder.pdb"
+  "CMakeFiles/LlamaCtxdecoder.dir/cmake_device_link.o"
   "CMakeFiles/LlamaCtxdecoder.dir/context_decoder.cpp.o"
   "CMakeFiles/LlamaCtxdecoder.dir/context_decoder.cpp.o.d"
 )

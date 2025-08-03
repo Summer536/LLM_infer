@@ -32,7 +32,7 @@ if __name__ == "__main__":
         print("{}: {}".format(key, vars(args)[key]))#vars(args)返回args的字典形式
     print("========================================")
     torch_dtype = torch.float16 if args.weight_data_type == 'fp16' else torch.float32
-    model = LlamaForCausalLM.from_pretrained(args.in_file,   ##这个是转换convert...py存放文件的路径
+    model = LlamaForCausalLM.from_pretrained(args.in_file,
                                                 torch_dtype=torch_dtype,
                                                 device_map="auto",
                                                 trust_remote_code=True)
@@ -47,7 +47,6 @@ if __name__ == "__main__":
     print(hf_config)
     print("\n===============================================")
     # 根据config来写入config.ini
-    import pdb;pdb.set_trace()
     config = configparser.ConfigParser()
     config["llama"] = {}
     config["llama"]["model_name"] = "llama-2-7b-chat" if hf_config["_name_or_path"] == '' else hf_config["_name_or_path"]
@@ -75,14 +74,14 @@ if __name__ == "__main__":
     cur_layer = 0
     q = 0
     k = 0
-    for name, param in model.named_parameters(): ####通过字典读取数据，做两个事情：1.做一个类型的转换（huggingface上llama2的weights都是FP16类型的），目前的课程是支持FP32的llama，因此需要将FP16转换为FP32.
+    for name, param in model.named_parameters():
         # model.embed_tokens.weight [32000, 4096]
         # import pdb;pdb.set_trace()
         # if name.find("weight") == -1 and name.find("bias") == -1:
         #     continue
 #        import pdb;pdb.set_trace()
         if name.find('model.embed_tokens.weight') != -1:
-            param.detach().cpu().float().numpy().astype(np_weight_data_type).tofile(f"model.embed_tokens.weight.bin")  ##在python层面转换为我们想要的类型，然后保存到文件中。（粗粒度-->细粒度）
+            param.detach().cpu().float().numpy().astype(np_weight_data_type).tofile(f"model.embed_tokens.weight.bin")
         elif name.find('model.norm.weight') != -1:
             param.detach().cpu().float().numpy().astype(np_weight_data_type).tofile(f"model.norm.weight.bin")
         elif name.find('lm_head.weight') != -1:
@@ -95,10 +94,7 @@ if __name__ == "__main__":
                 k = param.detach().cpu().float().numpy()
             elif name.find('self_attn.v_proj.weight') != -1:
                 v = param.detach().cpu().float().numpy()
-                qkv = np.hstack((q, k, v))                          ########这几行的意思是：如果我们在weights中发现了q_proj.weight, k_proj.weight, v_proj.weight，那么我们就将它们拼接起来，然后保存到文件中。
-                                                                    ########为什么要做concat呢？因为在我们的项目中将qkv三个linear做成了一整个大的linear（更好的利用GPU的资源）
-                                                                    ########同样的 gate 和 up也是做了一个concat ->122行代码
-                                                                    ######hstack的意思是将两个矩阵在水平方向拼接起来！（矩阵乘法的特性决定了拼接只能从水平方向拼接！）
+                qkv = np.vstack((q, k, v))
                 qkv.astype(np_weight_data_type).tofile(f"model.layers.{layer}.self_attn.qkv.weight.bin")
                 print("qkv shape: ", qkv.shape)
             # if cur_layer == layer:
@@ -116,7 +112,7 @@ if __name__ == "__main__":
                 gate = param.detach().cpu().float().numpy()
             elif name.find('mlp.up_proj.weight') != -1:
                 up = param.detach().cpu().float().numpy()
-                gate_up = np.hstack((gate, up))
+                gate_up = np.vstack((gate, up))
                 gate_up.astype(np_weight_data_type).tofile(f"model.layers.{layer}.mlp.gate_up_proj.weight.bin")
                 print("fused gate_up shape: ", gate_up.shape)
         # elif name.find('mlp.up_proj.weight') != -1:

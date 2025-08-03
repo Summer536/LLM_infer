@@ -237,18 +237,18 @@ CMakeFiles/llmengine.dir/src/kernels/attn_softmax_kernel.cu.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/llmengine.dir/src/kernels/attn_softmax_kernel.cu.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
 
-CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o: CMakeFiles/llmengine.dir/flags.make
-CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o: ../src/kernels/build_causal_mask.cu
-CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o: CMakeFiles/llmengine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CUDA object CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o"
-	/usr/local/cuda-12.5/bin/nvcc -forward-unknown-to-host-compiler $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -MD -MT CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o -MF CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o.d -x cu -c /home/yqgao/LLM_inference/LLM_interview/src/kernels/build_causal_mask.cu -o CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o
+CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o: CMakeFiles/llmengine.dir/flags.make
+CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o: ../src/kernels/build_casual_mask.cu
+CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o: CMakeFiles/llmengine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CUDA object CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o"
+	/usr/local/cuda-12.5/bin/nvcc -forward-unknown-to-host-compiler $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -MD -MT CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o -MF CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o.d -x cu -c /home/yqgao/LLM_inference/LLM_interview/src/kernels/build_casual_mask.cu -o CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o
 
-CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.i"
+CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.i"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE
 
-CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.s"
+CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
 
 CMakeFiles/llmengine.dir/src/kernels/cal_paddingoffset.cu.o: CMakeFiles/llmengine.dir/flags.make
@@ -419,10 +419,24 @@ CMakeFiles/llmengine.dir/src/kernels/topK.cu.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/llmengine.dir/src/kernels/topK.cu.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
 
+CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o: CMakeFiles/llmengine.dir/flags.make
+CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o: ../src/kernels/topK_bk.cu
+CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o: CMakeFiles/llmengine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CUDA object CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o"
+	/usr/local/cuda-12.5/bin/nvcc -forward-unknown-to-host-compiler $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -MD -MT CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o -MF CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o.d -x cu -c /home/yqgao/LLM_inference/LLM_interview/src/kernels/topK_bk.cu -o CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o
+
+CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.i"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE
+
+CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.s"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
+
 CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o: CMakeFiles/llmengine.dir/flags.make
 CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o: ../src/utils/weight_utils.cu
 CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o: CMakeFiles/llmengine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CUDA object CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CUDA object CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o"
 	/usr/local/cuda-12.5/bin/nvcc -forward-unknown-to-host-compiler $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -MD -MT CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o -MF CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o.d -x cu -c /home/yqgao/LLM_inference/LLM_interview/src/utils/weight_utils.cu -o CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o
 
 CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.i: cmake_force
@@ -445,7 +459,7 @@ llmengine: CMakeFiles/llmengine.dir/src/weights/llama/llama_weights.cc.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/act_kernel.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/add_residual.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/attn_softmax_kernel.cu.o
-llmengine: CMakeFiles/llmengine.dir/src/kernels/build_causal_mask.cu.o
+llmengine: CMakeFiles/llmengine.dir/src/kernels/build_casual_mask.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/cal_paddingoffset.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/concat_past_kv.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/fused_addresidual_norm.cu.o
@@ -458,6 +472,7 @@ llmengine: CMakeFiles/llmengine.dir/src/kernels/repeat_kv.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/rmsnorm_kernel.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/sampling.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/kernels/topK.cu.o
+llmengine: CMakeFiles/llmengine.dir/src/kernels/topK_bk.cu.o
 llmengine: CMakeFiles/llmengine.dir/src/utils/weight_utils.cu.o
 llmengine: CMakeFiles/llmengine.dir/build.make
 .PHONY : llmengine

@@ -233,7 +233,7 @@ src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/context_decoder.cpp.o: \
  /usr/include/c++/11/backward/auto_ptr.h \
  /home/yqgao/LLM_inference/LLM_interview/src/weights/base_weights.h \
  /home/yqgao/LLM_inference/LLM_interview/src/layers/decoder/context_decoder.h \
- /home/yqgao/LLM_inference/LLM_interview/src/kernels/build_causal_mask.h \
+ /home/yqgao/LLM_inference/LLM_interview/src/kernels/build_casual_mask.h \
  /home/yqgao/LLM_inference/LLM_interview/src/kernels/cal_paddingoffset.h \
  /home/yqgao/LLM_inference/LLM_interview/src/kernels/fused_addresidual_norm.h \
  /home/yqgao/LLM_inference/LLM_interview/src/weights/llama/norm_weights.h \

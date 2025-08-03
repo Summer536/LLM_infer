@@ -159,18 +159,18 @@ cal_paddingoffset/fast:
 .PHONY : cal_paddingoffset/fast
 
 # Convenience name for target.
-src/kernels/CMakeFiles/build_causal_mask.dir/rule:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/build_causal_mask.dir/rule
-.PHONY : src/kernels/CMakeFiles/build_causal_mask.dir/rule
+src/kernels/CMakeFiles/build_casual_mask.dir/rule:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/build_casual_mask.dir/rule
+.PHONY : src/kernels/CMakeFiles/build_casual_mask.dir/rule
 
 # Convenience name for target.
-build_causal_mask: src/kernels/CMakeFiles/build_causal_mask.dir/rule
-.PHONY : build_causal_mask
+build_casual_mask: src/kernels/CMakeFiles/build_casual_mask.dir/rule
+.PHONY : build_casual_mask
 
 # fast build rule for target.
-build_causal_mask/fast:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/build
-.PHONY : build_causal_mask/fast
+build_casual_mask/fast:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/build
+.PHONY : build_casual_mask/fast
 
 # Convenience name for target.
 src/kernels/CMakeFiles/cublasWrapper.dir/rule:
@@ -299,18 +299,18 @@ act/fast:
 .PHONY : act/fast
 
 # Convenience name for target.
-src/kernels/CMakeFiles/topK.dir/rule:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/topK.dir/rule
-.PHONY : src/kernels/CMakeFiles/topK.dir/rule
+src/kernels/CMakeFiles/topk.dir/rule:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/topk.dir/rule
+.PHONY : src/kernels/CMakeFiles/topk.dir/rule
 
 # Convenience name for target.
-topK: src/kernels/CMakeFiles/topK.dir/rule
-.PHONY : topK
+topk: src/kernels/CMakeFiles/topk.dir/rule
+.PHONY : topk
 
 # fast build rule for target.
-topK/fast:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/build
-.PHONY : topK/fast
+topk/fast:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/build
+.PHONY : topk/fast
 
 # Convenience name for target.
 src/kernels/CMakeFiles/fused_decoder_self_attention.dir/rule:
@@ -426,29 +426,29 @@ attn_softmax_kernel.cu.s:
 	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/mask_softmax.dir/build.make src/kernels/CMakeFiles/mask_softmax.dir/attn_softmax_kernel.cu.s
 .PHONY : attn_softmax_kernel.cu.s
 
-build_causal_mask.o: build_causal_mask.cu.o
-.PHONY : build_causal_mask.o
+build_casual_mask.o: build_casual_mask.cu.o
+.PHONY : build_casual_mask.o
 
 # target to build an object file
-build_causal_mask.cu.o:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/build_causal_mask.cu.o
-.PHONY : build_causal_mask.cu.o
+build_casual_mask.cu.o:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/build_casual_mask.cu.o
+.PHONY : build_casual_mask.cu.o
 
-build_causal_mask.i: build_causal_mask.cu.i
-.PHONY : build_causal_mask.i
+build_casual_mask.i: build_casual_mask.cu.i
+.PHONY : build_casual_mask.i
 
 # target to preprocess a source file
-build_causal_mask.cu.i:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/build_causal_mask.cu.i
-.PHONY : build_causal_mask.cu.i
+build_casual_mask.cu.i:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/build_casual_mask.cu.i
+.PHONY : build_casual_mask.cu.i
 
-build_causal_mask.s: build_causal_mask.cu.s
-.PHONY : build_causal_mask.s
+build_casual_mask.s: build_casual_mask.cu.s
+.PHONY : build_casual_mask.s
 
 # target to generate assembly for a file
-build_causal_mask.cu.s:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/build_causal_mask.cu.s
-.PHONY : build_causal_mask.cu.s
+build_casual_mask.cu.s:
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/build_casual_mask.cu.s
+.PHONY : build_casual_mask.cu.s
 
 cal_paddingoffset.o: cal_paddingoffset.cu.o
 .PHONY : cal_paddingoffset.o
@@ -743,7 +743,7 @@ topK.o: topK.cu.o
 
 # target to build an object file
 topK.cu.o:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/topK.cu.o
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/topK.cu.o
 .PHONY : topK.cu.o
 
 topK.i: topK.cu.i
@@ -751,7 +751,7 @@ topK.i: topK.cu.i
 
 # target to preprocess a source file
 topK.cu.i:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/topK.cu.i
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/topK.cu.i
 .PHONY : topK.cu.i
 
 topK.s: topK.cu.s
@@ -759,7 +759,7 @@ topK.s: topK.cu.s
 
 # target to generate assembly for a file
 topK.cu.s:
-	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/topK.cu.s
+	cd /home/yqgao/LLM_inference/LLM_interview/build && $(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/topK.cu.s
 .PHONY : topK.cu.s
 
 # Help Target
@@ -772,7 +772,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... act"
 	@echo "... add_residual"
-	@echo "... build_causal_mask"
+	@echo "... build_casual_mask"
 	@echo "... cal_paddingoffset"
 	@echo "... concat_kv"
 	@echo "... cublasWrapper"
@@ -786,7 +786,7 @@ help:
 	@echo "... repeat_kv"
 	@echo "... rmsnorm"
 	@echo "... sampling"
-	@echo "... topK"
+	@echo "... topk"
 	@echo "... act_kernel.o"
 	@echo "... act_kernel.i"
 	@echo "... act_kernel.s"
@@ -796,9 +796,9 @@ help:
 	@echo "... attn_softmax_kernel.o"
 	@echo "... attn_softmax_kernel.i"
 	@echo "... attn_softmax_kernel.s"
-	@echo "... build_causal_mask.o"
-	@echo "... build_causal_mask.i"
-	@echo "... build_causal_mask.s"
+	@echo "... build_casual_mask.o"
+	@echo "... build_casual_mask.i"
+	@echo "... build_casual_mask.s"
 	@echo "... cal_paddingoffset.o"
 	@echo "... cal_paddingoffset.i"
 	@echo "... cal_paddingoffset.s"

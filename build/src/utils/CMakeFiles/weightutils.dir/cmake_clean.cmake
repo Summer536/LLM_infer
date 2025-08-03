@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../lib/libweightutils.a"
   "../../lib/libweightutils.pdb"
+  "CMakeFiles/weightutils.dir/cmake_device_link.o"
   "CMakeFiles/weightutils.dir/weight_utils.cu.o"
   "CMakeFiles/weightutils.dir/weight_utils.cu.o.d"
 )

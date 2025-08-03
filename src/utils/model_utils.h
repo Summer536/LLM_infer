@@ -7,13 +7,11 @@
 #include "src/utils/macro.h"
 #include "src/memory/allocator/cuda_allocator.h"
 #include "src/models/llama/llama_params.h"
-// all LLM models are created in the header file, and I provided two ways, one is real weight model, the other is dummy weight model for functionality
+// (RussWong) note: all LLM models are created in the header file, and I provided two ways, one is real weight model, the other is dummy weight model for functionality
 namespace llm {
     template<typename T>
-    BaseModel *CreateModelWithName(const std::string& model_name) {  
+    BaseModel *CreateModelWithName(const std::string& model_name) {
         LLM_CHECK_WITH_INFO(model_name == "llama", "dont support other models except llama yet!");
-        ////////////////////初始化llama类所需要的数据成员/////////////////////////
-        ///这些信息来自hf下载来的模型文件解析得到的
         int head_num = 32;
         int kv_head_num = 32;
         int head_size = 128;
@@ -29,19 +27,17 @@ namespace llm {
         attn_static_params.rotary_embedding_base = 10000;
         attn_static_params.max_position_embeddings = 4096;
         attn_static_params.use_dynamic_ntk = false; // true is for dyn scaling rope
-
         cublasHandle_t cublas_handle;
         cublasLtHandle_t cublaslt_handle;
         cudaStream_t stream;
         cublasCreate(&cublas_handle);
         cublasSetMathMode(cublas_handle, CUBLAS_DEFAULT_MATH);
         cublasWrapper* cublas_wrapper = new cublasWrapper(cublas_handle, cublaslt_handle);
-        cublas_wrapper->setFP32GemmConfig(); //cublas_utils.cc中的13 19行
-
+        cublas_wrapper->setFP32GemmConfig();
 	BaseAllocator* allocator = new CudaAllocator;
         cudaDeviceProp deviceProp;
-        cudaGetDeviceProperties(&deviceProp, 0); 
-        BaseModel *model = new Llama<T>(head_num, 
+        cudaGetDeviceProperties(&deviceProp, 0);
+        BaseModel *model = new Llama<T>(head_num,
                                         kv_head_num,
                                         head_size,
                                         inter_size,
@@ -56,7 +52,6 @@ namespace llm {
         return model;
     }
 
-    /////////////这个是创建假的模型，用于测试功能是否正常
     template<typename T>
     std::unique_ptr<BaseModel> CreateDummyLLMModel(std::string tokenizer_file){
         BaseModel *model = CreateModelWithName<T>("llama");
@@ -65,13 +60,12 @@ namespace llm {
         return std::unique_ptr<BaseModel> (model);        
     }
 
-    /////////////这个是创建真的//////////////////
     template<typename T>
-    std::unique_ptr<BaseModel> CreateRealLLMModel(std::string model_dir, std::string tokenizer_file){ 
+    std::unique_ptr<BaseModel> CreateRealLLMModel(std::string model_dir, std::string tokenizer_file){
         BaseModel *model = CreateModelWithName<T>("llama");
 	std::cout << "start creating model..." << "\n";
-	model->loadTokenizer(tokenizer_file); 
-        model->loadWeights(model_dir);//(/sec/models/llama/llama.h)-->(/sec/weights/llama/llama_weights.cc)
+	model->loadTokenizer(tokenizer_file);
+        model->loadWeights(model_dir);
 	std::cout << "finish creating model..." << "\n";
         return std::unique_ptr<BaseModel> (model);        
     }

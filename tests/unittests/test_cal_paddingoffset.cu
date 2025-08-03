@@ -1,165 +1,64 @@
-#include <iostream>
-#include <algorithm>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <vector>
-#include <cassert>
+#include <algorithm>   // std::fill_n
+#include <iostream>    // snprintf
+#include <math.h>      // expf, log
+#include <stdlib.h>    // rand
+#include <string>      // std::string
+#include <vector>      // std::vector
 
 #include "src/kernels/cal_paddingoffset.h"
-
-void printResults(const char* name, int* data, int size) {
-    std::cout << name << ": ";
-    for (int i = 0; i < size; i++) {
-        std::cout << data[i];
-        if (i < size - 1) std::cout << ", ";
-    }
-    std::cout << std::endl;
-}
-
-void testCalPaddingOffset(const std::vector<int>& seq_lens, int max_seq_len) {
-    const int batch_size = seq_lens.size();
-    
-    std::cout << "\n=== Testing CalPaddingOffset ===" << std::endl;
-    std::cout << "Batch size: " << batch_size << ", Max seq len: " << max_seq_len << std::endl;
-    std::cout << "Input seq lengths: ";
-    for (int i = 0; i < batch_size; i++) {
-        std::cout << seq_lens[i];
-        if (i < batch_size - 1) std::cout << ", ";
-    }
-    std::cout << std::endl;
-    
-    // Allocate host memory
-    int *h_seq_lens = (int*)malloc(batch_size * sizeof(int));
-    int *h_cum_seqlens = (int*)malloc((batch_size + 1) * sizeof(int));
-    int *h_padding_offset = (int*)malloc(batch_size * max_seq_len * sizeof(int));
-    
-    // Allocate device memory
-    int *d_seq_lens, *d_cum_seqlens, *d_padding_offset;
-    cudaMalloc((void**)&d_seq_lens, batch_size * sizeof(int));
-    cudaMalloc((void**)&d_cum_seqlens, (batch_size + 1) * sizeof(int));
-    cudaMalloc((void**)&d_padding_offset, batch_size * max_seq_len * sizeof(int));
-
-    // Initialize input data
-    for (int i = 0; i < batch_size; i++) {
-        h_seq_lens[i] = seq_lens[i];
-    }
-    
-    // Copy to device
-    cudaMemcpy(d_seq_lens, h_seq_lens, batch_size * sizeof(int), cudaMemcpyHostToDevice);
-    
-    // Create tensor wrappers
-    DataType type_int = getTensorType<int>();
-    TensorWrapper<int> *padding_offset = new TensorWrapper<int>(Device::GPU, type_int, {batch_size, max_seq_len}, d_padding_offset);
-    TensorWrapper<int> *cum_seqlens = new TensorWrapper<int>(Device::GPU, type_int, {batch_size + 1}, d_cum_seqlens);
-    TensorWrapper<int> *input_lengths = new TensorWrapper<int>(Device::GPU, type_int, {batch_size}, d_seq_lens);
-
-    // Launch kernel
-    launchCalPaddingoffset(padding_offset, cum_seqlens, input_lengths);
-    
-    // Check for CUDA errors
-    cudaError_t err = cudaGetLastError();
-    if (err != cudaSuccess) {
-        std::cerr << "CUDA kernel launch error: " << cudaGetErrorString(err) << std::endl;
-        return;
-    }
-    
-    // Wait for kernel completion
-    cudaDeviceSynchronize();
-
-    // Copy results back to host
-    cudaMemcpy(h_padding_offset, d_padding_offset, batch_size * max_seq_len * sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_cum_seqlens, d_cum_seqlens, (batch_size + 1) * sizeof(int), cudaMemcpyDeviceToHost);
-
-    // Print results
-    std::cout << "\nResults:" << std::endl;
-    printResults("Cumulative seq lengths", h_cum_seqlens, batch_size + 1);
-    
-    std::cout << "Padding offsets:" << std::endl;
-    for (int b = 0; b < batch_size; b++) {
-        std::cout << "  Batch " << b << " (len=" << seq_lens[b] << "): ";
-        for (int i = 0; i < seq_lens[b]; i++) {
-            std::cout << h_padding_offset[b * max_seq_len + i];
-            if (i < seq_lens[b] - 1) std::cout << ", ";
-        }
-        std::cout << std::endl;
-    }
-    
-    // Verify correctness
-    bool correct = true;
-    
-    // Check cumulative sequence lengths
-    int expected_total = 0;
-    for (int i = 0; i < batch_size; i++) {
-        if (h_cum_seqlens[i] != expected_total) {
-            std::cerr << "Error: cum_seqlens[" << i << "] = " << h_cum_seqlens[i] 
-                      << ", expected " << expected_total << std::endl;
-            correct = false;
-        }
-        expected_total += seq_lens[i];
-    }
-    if (h_cum_seqlens[batch_size] != expected_total) {
-        std::cerr << "Error: cum_seqlens[" << batch_size << "] = " << h_cum_seqlens[batch_size] 
-                  << ", expected " << expected_total << std::endl;
-        correct = false;
-    }
-    
-    // Check padding offsets
-    int expected_offset = 0;
-    for (int b = 0; b < batch_size; b++) {
-        for (int i = 0; i < seq_lens[b]; i++) {
-            int offset_idx = b * max_seq_len + i;
-            if (h_padding_offset[offset_idx] != expected_offset) {
-                std::cerr << "Error: padding_offset[" << b << "][" << i << "] = " 
-                          << h_padding_offset[offset_idx] << ", expected " << expected_offset << std::endl;
-                correct = false;
-            }
-        }
-        expected_offset += max_seq_len - seq_lens[b];
-    }
-    
-    if (correct) {
-        std::cout << "✓ Test PASSED" << std::endl;
-    } else {
-        std::cout << "✗ Test FAILED" << std::endl;
-    }
-
-    // Cleanup
-    free(h_seq_lens);
-    free(h_cum_seqlens);
-    free(h_padding_offset);
-    cudaFree(d_seq_lens);
-    cudaFree(d_cum_seqlens);
-    cudaFree(d_padding_offset);
-    
-    delete padding_offset;
-    delete cum_seqlens;
-    delete input_lengths;
-}
-
+// (RussWong)note: this kernel is only int type input and output, not fp32 or half
+// we compare the kernel correctnesss by eyes and result print infos
+// `./paddingoffset` to run
 int main() {
-    std::cout << "Testing CalPaddingOffset kernel..." << std::endl;
+    const int batch_size = 3;
+    const int max_q_len = 5;
+    // debug info, better to retain: std::cout <<"batch_size=" << batch_size << "  vocab_size=" << vocab_size << std::endl;
+    int* h_seq_lens;
+    int *d_seq_lens;
+    h_seq_lens = (int*)malloc(sizeof(int) * batch_size);
+    cudaMalloc((void**)&d_seq_lens, sizeof(int) * batch_size);
+
+    int* h_cum_seqlens;
+    int* d_cum_seqlens;
+    h_cum_seqlens = (int*)malloc(sizeof(int) * (batch_size + 1));
+    cudaMalloc((void**)&d_cum_seqlens, sizeof(int) * (batch_size + 1));
     
-    // Test case 1: All sequences have the same length
-    testCalPaddingOffset({3, 3, 3}, 5);
-    
-    // Test case 2: Different sequence lengths
-    testCalPaddingOffset({2, 4, 1}, 5);
-    
-    // Test case 3: Single sequence
-    testCalPaddingOffset({3}, 5);
-    
-    // Test case 4: Sequences at max length
-    testCalPaddingOffset({5, 5}, 5);
-    
-    // Test case 5: Mix of short and long sequences  
-    testCalPaddingOffset({1, 5, 3, 2}, 6);
-    
-    std::cout << "\nAll tests completed!" << std::endl;
-    return 0;
+    int* h_padding_offset;
+    int* d_padding_offset;
+    h_padding_offset = (int*)malloc(sizeof(int) * batch_size * max_q_len);
+    cudaMalloc((void**)&d_padding_offset, sizeof(int) * batch_size * max_q_len);
+
+    for(int i = 0; i < batch_size; i++) { // 3
+       h_seq_lens[i] = batch_size;
+    }
+    cudaMemcpy(d_seq_lens, h_seq_lens, sizeof(int) * batch_size, cudaMemcpyHostToDevice);
+    DataType type_int = getTensorType<int>();
+    TensorWrapper<int>* padding_offset = new TensorWrapper<int>(Device::GPU, type_int, {batch_size, max_q_len}, d_padding_offset);
+    TensorWrapper<int>* cum_seqlens = new TensorWrapper<int>(Device::GPU, type_int, {batch_size + 1}, d_cum_seqlens);
+    TensorWrapper<int>* input_lengths = new TensorWrapper<int>(Device::GPU, type_int, {batch_size}, d_seq_lens);
+    // debug info, better to retain: std::cout << "before launch kernel" << std::endl;
+    launchCalPaddingoffset(padding_offset, 
+                           cum_seqlens,
+                           input_lengths);
+    // debug info, better to retain: std::cout << "after launch kernel" << std::endl;
+    // Note: remember to memcpy from device to host and define the correct copy size(mul the sizeof(dtype)), or will cause segment fault
+    cudaMemcpy(h_padding_offset, d_padding_offset, sizeof(int) * batch_size * max_q_len, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_cum_seqlens, d_cum_seqlens, sizeof(int) * (batch_size + 1), cudaMemcpyDeviceToHost);
+    // debug info, better to retain: std::cout << "cuda memcpy device to host" << std::endl;    
+    for(int i = 0; i < batch_size * max_q_len; i++) {
+        printf("padding_offset = %d\n", h_padding_offset[i]);
+    }
+    for(int i = 0; i < batch_size + 1; i++){
+        printf("cum_seqlens =%d\n", h_cum_seqlens[i]);
+    }
+    //expected result is:
+    // padding_offset: 0,0,0,2,2,2,4,4,4,0.... shape = [batchsize, max_q_len]
+    // cum_seqlens: 0,3,6,9. shape=[batchsize+1]
+    // debug info, better to retain: std::cout << "before free" << std::endl;
+    free(h_seq_lens);
+    free(h_padding_offset);
+    free(h_cum_seqlens);
+    cudaFree(d_seq_lens);
+    cudaFree(d_padding_offset);
+    cudaFree(d_cum_seqlens);
 }
-
-
-
-
-

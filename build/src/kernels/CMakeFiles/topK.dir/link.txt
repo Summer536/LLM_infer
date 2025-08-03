@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../lib/libtopK.a CMakeFiles/topK.dir/topK.cu.o
-/usr/bin/ranlib ../../lib/libtopK.a

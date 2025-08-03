@@ -356,10 +356,10 @@ Llama_LIB_DEPENDS:STATIC=general;LlamaCtxdecoder;general;Llamaselfdecoder;genera
 Llamaffn_LIB_DEPENDS:STATIC=general;-lcudart;general;-lcudadevrt;general;act;general;linear;
 
 //Dependencies for the target
-LlamaselfAttn_LIB_DEPENDS:STATIC=general;-lcudart;general;-lcudadevrt;general;fused_decoder_self_attention;general;qkv_bias_and_rope;general;linear;
+LlamaselfAttn_LIB_DEPENDS:STATIC=general;-lcudart;general;-lcudadevrt;general;fused_decoder_self_attention;general;qkv_bias_and_rope;
 
 //Dependencies for the target
-Llamaselfdecoder_LIB_DEPENDS:STATIC=general;LlamaselfAttn;general;Llamaffn;general;llamaweights;general;rmsnorm;general;fused_addresidual_norm;general;add_residual;general;update_kvbs_cache;
+Llamaselfdecoder_LIB_DEPENDS:STATIC=general;LlamaselfAttn;general;Llamaffn;general;llamaweights;general;rmsnorm;general;fused_addresidual_norm;general;add_residual;
 
 //measure model inference performance
 PERF:BOOL=OFF
@@ -371,33 +371,6 @@ PRINT_DATA:BOOL=OFF
 SAVE_DATA:BOOL=OFF
 
 //Dependencies for the target
-act_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-add_residual_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-build_causal_mask_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-cal_paddingoffset_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-concat_kv_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-embeddingFunctor_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-fused_addresidual_norm_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-fused_decoder_self_attention_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-fused_transpose_and_remv_pad_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
 layerweights_LIB_DEPENDS:STATIC=general;-lcudart;general;weightutils;
 
 //Dependencies for the target
@@ -405,9 +378,6 @@ linear_LIB_DEPENDS:STATIC=general;-lcudart;general;-lcublas;general;cublasWrappe
 
 //Dependencies for the target
 llamaweights_LIB_DEPENDS:STATIC=general;layerweights;
-
-//Dependencies for the target
-mask_softmax_LIB_DEPENDS:STATIC=general;-lcudart;
 
 //Value Computed by CMake
 oneLLM_BINARY_DIR:STATIC=/home/yqgao/LLM_inference/LLM_interview/build
@@ -417,21 +387,6 @@ oneLLM_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 oneLLM_SOURCE_DIR:STATIC=/home/yqgao/LLM_inference/LLM_interview
-
-//Dependencies for the target
-qkv_bias_and_rope_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-repeat_kv_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-rmsnorm_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-sampling_LIB_DEPENDS:STATIC=general;-lcudart;
-
-//Dependencies for the target
-topK_LIB_DEPENDS:STATIC=general;-lcudart;
 
 
 ########################

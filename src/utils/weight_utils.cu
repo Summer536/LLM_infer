@@ -1,33 +1,27 @@
 #include "src/utils/weight_utils.h"
 
 template<typename T_OUT, typename T_IN>
-inline __device__ T_OUT type_cast(T_IN val) { 
+inline __device__ T_OUT type_cast(T_IN val) {
     return val;
 }
 template<>
-inline __device__ float type_cast(half val) { 
-    return __half2float(val); 
+inline __device__ float type_cast(half val) {
+    return __half2float(val);
 }
 
 template<>
-inline __device__ half type_cast(float val) { 
+inline __device__ half type_cast(float val) {
     return __float2half(val); 
 }
 
-
-
-
 template<typename T>
-void GPUMalloc(T** ptr, size_t size) 
+void GPUMalloc(T** ptr, size_t size)
 {
-    LLM_CHECK_WITH_INFO(size >= ((size_t)0), "Ask cudaMalloc size " + std::to_string(size) + "< 0 is invalid.");  
+    LLM_CHECK_WITH_INFO(size >= ((size_t)0), "Ask cudaMalloc size " + std::to_string(size) + "< 0 is invalid.");
     CHECK(cudaMalloc((void**)(ptr), sizeof(T) * size));
 }
-template void GPUMalloc(float** ptr, size_t size); 
-template void GPUMalloc(half** ptr, size_t size);  
-
-
-
+template void GPUMalloc(float** ptr, size_t size);
+template void GPUMalloc(half** ptr, size_t size);
 
 template<typename T>
 void GPUFree(T* ptr)
@@ -40,9 +34,6 @@ void GPUFree(T* ptr)
 template void GPUFree(float* ptr);
 template void GPUFree(half* ptr);
 
-
-
-
 template<typename T>
 void cudaH2Dcpy(T* tgt, const T* src, const size_t size)
 {
@@ -52,22 +43,18 @@ void cudaH2Dcpy(T* tgt, const T* src, const size_t size)
 template void cudaH2Dcpy(float* tgt, const float* src, const size_t size);
 template void cudaH2Dcpy(half* tgt, const half* src, const size_t size);
 
-
-
-
-
 template<typename T_IN, typename T_OUT>
-__global__ void type_conversion(T_OUT* dst, const T_IN* src, const int size) //这个是对传入的数据类型进行转换，比如将FP32-->FP16
+__global__ void type_conversion(T_OUT* dst, const T_IN* src, const int size)
 {
     int gtid = threadIdx.x + blockIdx.x * blockDim.x;
     int total_thread_nums = blockDim.x * gridDim.x;
     for (int index = gtid; index < size; index += total_thread_nums) {
-        dst[index] = type_cast<T_OUT>(src[index]); 
+        dst[index] = type_cast<T_OUT>(src[index]);
     }
 }
 
 template<typename T_IN, typename T_OUT>
-void cuda_type_conversion(T_OUT* dst, const T_IN* src, const int size)  //这个是对传入的数据类型进行转换，比如将FP32-->FP16
+void cuda_type_conversion(T_OUT* dst, const T_IN* src, const int size)
 {
     dim3 grid(128);
     dim3 block(128);
@@ -77,8 +64,7 @@ void cuda_type_conversion(T_OUT* dst, const T_IN* src, const int size)  //这个
 template void cuda_type_conversion(float* dst, const half* src, const int size);
 template void cuda_type_conversion(half* dst, const float* src, const int size);
 
-
-// from FT code 这个函数原型来自fasttransormer中，从二进制文件中读取数据，如果读取失败则返回一个空指针
+// from FT code
 // loads data from binary file. If it succeeds, returns a non-empty (shape size) vector. If loading fails or
 // the product of the elements in shape is 0, this function will return an empty vector.
 template<typename T>
@@ -110,7 +96,7 @@ std::vector<T> loadWeightFromBinHelper(std::vector<size_t> shape, std::string fi
     in.seekg(0, in.beg);
 
     std::cout << "Read " << std::to_string(loaded_data_size) << " bytes from " << filename << std::endl;
-    in.read((char*)host_array.data(), loaded_data_size); //读取文件中的数据，保存到host_array.data()中
+    in.read((char*)host_array.data(), loaded_data_size);
 
     size_t in_get_size = in.gcount();
     if (in_get_size != loaded_data_size) {
@@ -121,19 +107,17 @@ std::vector<T> loadWeightFromBinHelper(std::vector<size_t> shape, std::string fi
     return host_array;
 }
 
-
-
-template <typename T_OUT, typename T_FILE> //T_FILE表示读取文件中的数据类型，T_OUT表示导出的数据类型。 我们使用时写的是<T,float>，因为我们使用python脚本转换好的weight类型为float
-struct loadWeightFromBin<T_OUT, T_FILE, true> //最后一个参数一个为true 一个为flase表示什么呢？如果T_FILE和T_OUT是一样的，那么它为ture，不一样则为flase
+template <typename T_OUT, typename T_FILE>
+struct loadWeightFromBin<T_OUT, T_FILE, true>
 {
 public:
     static void internalFunc(T_OUT* ptr, std::vector<size_t> shape, std::string filename) {
-        std::vector<T_FILE> host_array = loadWeightFromBinHelper<T_FILE>(shape, filename); //调用loadWeightFromBinHelper函数
+        std::vector<T_FILE> host_array = loadWeightFromBinHelper<T_FILE>(shape, filename);
         if (host_array.empty()) {
             return;
         }
 
-        cudaH2Dcpy(ptr, host_array.data(), host_array.size()); //将host_array（读取到的文件内数据值）copy到指针上去
+        cudaH2Dcpy(ptr, host_array.data(), host_array.size());
         return;    
    }
 };
@@ -142,21 +126,52 @@ template <typename T_OUT, typename T_FILE>
 struct loadWeightFromBin<T_OUT, T_FILE, false>
 {
 public:
-    static void internalFunc(T_OUT* ptr, std::vector<size_t> shape, std::string filename) {  //这个时侯T_FILE和T_OUT不一样，因此需要多一些操作！
+    static void internalFunc(T_OUT* ptr, std::vector<size_t> shape, std::string filename) {
         std::vector<T_FILE> host_array = loadWeightFromBinHelper<T_FILE>(shape, filename);
         if (host_array.empty()) {
             return;
         }
 
-        //转换过程：
-        T_FILE* ptr_tmp;//定义一个T_FILE类型的临时指针
-        GPUMalloc(&ptr_tmp, host_array.size()); //分配临时指针内存
-        cudaH2Dcpy(ptr_tmp, host_array.data(), host_array.size()); //用临时指针接住读取到的数据
-        cuda_type_conversion(ptr, ptr_tmp, host_array.size());  //这一步将临时指针上的数据做类型转换，然后写入我们传入的指针上！ 这个函数在上面定义好了
-        GPUFree(ptr_tmp); //free掉临时指针
+        T_FILE* ptr_tmp;
+        GPUMalloc(&ptr_tmp, host_array.size());
+        cudaH2Dcpy(ptr_tmp, host_array.data(), host_array.size());
+        cuda_type_conversion(ptr, ptr_tmp, host_array.size());
+        GPUFree(ptr_tmp);
         return;
     }
 };
+
+// ！！(wrong case)C++委员会规定：函数模板不支持模板偏特化
+// template<typename T_OUT, typename T_FILE>
+// typename std::enable_if<std::is_same<T_OUT, T_FILE>::value, int>::type loadWeightFromBin(T_OUT* ptr, std::vector<size_t> shape, std::string filename)
+// {
+//     std::vector<T_FILE> host_array = loadWeightFromBinHelper<T_FILE>(shape, filename);
+
+//     if (host_array.empty()) {
+//         return 0;
+//     }
+
+//     cudaH2Dcpy(ptr, host_array.data(), host_array.size());
+//     return 0;
+// }
+
+// template<typename T_OUT, typename T_FILE>
+// typename std::enable_if<!std::is_same<T_OUT, T_FILE>::value, int>::type loadWeightFromBin(T_OUT* ptr, std::vector<size_t> shape, std::string filename)
+// {
+//     std::vector<T_FILE> host_array = loadWeightFromBinHelper<T_FILE>(shape, filename);
+
+//     if (host_array.empty()) {
+//         return 0;
+//     }
+
+
+//     T_FILE* ptr_tmp;
+//     GPUMalloc(&ptr_tmp, host_array.size());
+//     cudaH2Dcpy(ptr_tmp, host_array.data(), host_array.size());
+//     cuda_type_conversion(ptr, ptr_tmp, host_array.size());
+//     GPUFree(ptr_tmp);
+//     return 0;
+// }
 
 template struct loadWeightFromBin<float, float, true>;
 template struct loadWeightFromBin<half, half, true>;

@@ -6,7 +6,7 @@
 #include "src/utils/tensor.h"
 #include "src/weights/base_weights.h"
 #include "src/utils/macro.h"
-//  overloaded 3 different function for saving intermediate output tensor to debug
+// (RussWong)note: overloaded 3 different function for saving intermediate output tensor to debug
 // because LLMs have many layers, so I provide some overloaded function to specify layer id to print specify layer output tensor to debug
 // after you save tensor into specified file ,you can turn to tests/unitests/test_data_compare.cu to specify file path to compare res with HF.
 template<typename T>

@@ -6,6 +6,5 @@ CUDA_DEFINES =
 
 CUDA_INCLUDES = -I/home/yqgao/LLM_inference/LLM_interview -I/usr/local/cuda-12.5/include
 
-CUDA_FLAGS =  -Xcompiler -Wall                        -gencode=arch=compute_70,code=\"sm_70,compute_70\"  
-                      -gencode=arch=compute_75,code=\"sm_75,compute_75\"                       -gencode=arch=compute_80,code=\"sm_80,compute_80\"                       -gencode=arch=compute_86,code=\"sm_86,compute_86\"                          --expt-extended-lambda --expt-relaxed-constexpr --std=c++11 --generate-code=arch=compute_70,code=[compute_70,sm_70] --generate-code=arch=compute_75,code=[compute_75,sm_75] --generate-code=arch=compute_80,code=[compute_80,sm_80] --generate-code=arch=compute_86,code=[compute_86,sm_86] -std=c++11
+CUDA_FLAGS =   -Xcompiler -Wall                        -gencode=arch=compute_70,code=\"sm_70,compute_70\"                       -gencode=arch=compute_75,code=\"sm_75,compute_75\"                       -gencode=arch=compute_80,code=\"sm_80,compute_80\"                       -gencode=arch=compute_86,code=\"sm_86,compute_86\"                          --expt-extended-lambda --expt-relaxed-constexpr --std=c++11 --generate-code=arch=compute_70,code=[compute_70,sm_70] --generate-code=arch=compute_75,code=[compute_75,sm_75] --generate-code=arch=compute_80,code=[compute_80,sm_80] --generate-code=arch=compute_86,code=[compute_86,sm_86] -std=c++11
 

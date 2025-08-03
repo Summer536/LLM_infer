@@ -1,5 +1,5 @@
 #pragma once
-#include "src/kernels/build_causal_mask.h"
+#include "src/kernels/build_casual_mask.h"
 #include "src/kernels/cal_paddingoffset.h"
 #include "src/kernels/fused_addresidual_norm.h"
 #include "src/kernels/add_residual.h"
@@ -13,7 +13,7 @@
 template <typename T>
 class LlamaContextDecoder
 {
-private:    
+private:
     int head_num;
     int kv_head_num;
     int head_size;
@@ -21,8 +21,6 @@ private:
     int num_layer;
     int hidden_units;
     float rmsnorm_eps;
-
-    // forward推理所需的中间buffer
     TensorWrapper<T> *attention_mask;
     TensorWrapper<int> *padding_offset;
     TensorWrapper<int> *cum_seqlens;
@@ -31,8 +29,7 @@ private:
     cublasWrapper *cublas_wrapper;
     BaseAllocator *allocator;
 
-    // forward推理所调用的类，例如 context decoder包含了context attention和ffn
-    LLaMAContextAttentionLayer<T> *ctxAttn; //把这context decoder layer和ffn layer两个类作为context decoder类的成员
+    LLaMAContextAttentionLayer<T> *ctxAttn;
     LLaMAFFNLayer<T> *ffn;
     DataType data_type;
 
@@ -56,8 +53,8 @@ public:
                                                     stream(stream),
                                                     cublas_wrapper(cublas_wrapper),
                                                     allocator(allocator)
-    {   
-        ctxAttn = new LLaMAContextAttentionLayer<T>(head_num, 
+    {
+        ctxAttn = new LLaMAContextAttentionLayer<T>(head_num,
                                                     kv_head_num,
                                                     head_size,
                                                     attn_params,
@@ -72,7 +69,6 @@ public:
                                    cublas_wrapper,
                                    allocator);
     };
-
     void allocForForward(LLaMAAttentionDynParams &dyn_params);
     void freeBuf();
     void forward(TensorMap &input_tensors, const std::vector<LlamaLayerWeight<T> *> &layerWeights, TensorMap &output_tensors, LLaMAAttentionDynParams &dyn_params);

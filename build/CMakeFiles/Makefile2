@@ -64,6 +64,7 @@ CMAKE_BINARY_DIR = /home/yqgao/LLM_inference/LLM_interview/build
 
 # The main recursive "all" target.
 all: CMakeFiles/llmengine.dir/all
+all: CMakeFiles/main.dir/all
 all: src/all
 all: tests/all
 .PHONY : all
@@ -75,6 +76,7 @@ preinstall: tests/preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/llmengine.dir/clean
+clean: CMakeFiles/main.dir/clean
 clean: src/clean
 clean: tests/clean
 .PHONY : clean
@@ -113,7 +115,7 @@ src/clean: src/models/clean
 src/kernels/all: src/kernels/CMakeFiles/embeddingFunctor.dir/all
 src/kernels/all: src/kernels/CMakeFiles/rmsnorm.dir/all
 src/kernels/all: src/kernels/CMakeFiles/cal_paddingoffset.dir/all
-src/kernels/all: src/kernels/CMakeFiles/build_causal_mask.dir/all
+src/kernels/all: src/kernels/CMakeFiles/build_casual_mask.dir/all
 src/kernels/all: src/kernels/CMakeFiles/cublasWrapper.dir/all
 src/kernels/all: src/kernels/CMakeFiles/linear.dir/all
 src/kernels/all: src/kernels/CMakeFiles/qkv_bias_and_rope.dir/all
@@ -123,7 +125,7 @@ src/kernels/all: src/kernels/CMakeFiles/mask_softmax.dir/all
 src/kernels/all: src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/all
 src/kernels/all: src/kernels/CMakeFiles/fused_addresidual_norm.dir/all
 src/kernels/all: src/kernels/CMakeFiles/act.dir/all
-src/kernels/all: src/kernels/CMakeFiles/topK.dir/all
+src/kernels/all: src/kernels/CMakeFiles/topk.dir/all
 src/kernels/all: src/kernels/CMakeFiles/fused_decoder_self_attention.dir/all
 src/kernels/all: src/kernels/CMakeFiles/sampling.dir/all
 src/kernels/all: src/kernels/CMakeFiles/add_residual.dir/all
@@ -137,7 +139,7 @@ src/kernels/preinstall:
 src/kernels/clean: src/kernels/CMakeFiles/embeddingFunctor.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/rmsnorm.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/cal_paddingoffset.dir/clean
-src/kernels/clean: src/kernels/CMakeFiles/build_causal_mask.dir/clean
+src/kernels/clean: src/kernels/CMakeFiles/build_casual_mask.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/cublasWrapper.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/linear.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/qkv_bias_and_rope.dir/clean
@@ -147,7 +149,7 @@ src/kernels/clean: src/kernels/CMakeFiles/mask_softmax.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/fused_addresidual_norm.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/act.dir/clean
-src/kernels/clean: src/kernels/CMakeFiles/topK.dir/clean
+src/kernels/clean: src/kernels/CMakeFiles/topk.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/fused_decoder_self_attention.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/sampling.dir/clean
 src/kernels/clean: src/kernels/CMakeFiles/add_residual.dir/clean
@@ -307,8 +309,10 @@ tests/clean: tests/unittests/clean
 tests/unittests/all: tests/unittests/CMakeFiles/embedding.dir/all
 tests/unittests/all: tests/unittests/CMakeFiles/rms_norm.dir/all
 tests/unittests/all: tests/unittests/CMakeFiles/paddingoffset.dir/all
-tests/unittests/all: tests/unittests/CMakeFiles/test_causal_mask.dir/all
+tests/unittests/all: tests/unittests/CMakeFiles/causalmask.dir/all
 tests/unittests/all: tests/unittests/CMakeFiles/testlinear.dir/all
+tests/unittests/all: tests/unittests/CMakeFiles/debug.dir/all
+tests/unittests/all: tests/unittests/CMakeFiles/bmm.dir/all
 tests/unittests/all: tests/unittests/CMakeFiles/biasRope.dir/all
 tests/unittests/all: tests/unittests/CMakeFiles/test_concat_kv.dir/all
 tests/unittests/all: tests/unittests/CMakeFiles/test_repeat_kv.dir/all
@@ -330,8 +334,10 @@ tests/unittests/preinstall:
 tests/unittests/clean: tests/unittests/CMakeFiles/embedding.dir/clean
 tests/unittests/clean: tests/unittests/CMakeFiles/rms_norm.dir/clean
 tests/unittests/clean: tests/unittests/CMakeFiles/paddingoffset.dir/clean
-tests/unittests/clean: tests/unittests/CMakeFiles/test_causal_mask.dir/clean
+tests/unittests/clean: tests/unittests/CMakeFiles/causalmask.dir/clean
 tests/unittests/clean: tests/unittests/CMakeFiles/testlinear.dir/clean
+tests/unittests/clean: tests/unittests/CMakeFiles/debug.dir/clean
+tests/unittests/clean: tests/unittests/CMakeFiles/bmm.dir/clean
 tests/unittests/clean: tests/unittests/CMakeFiles/biasRope.dir/clean
 tests/unittests/clean: tests/unittests/CMakeFiles/test_concat_kv.dir/clean
 tests/unittests/clean: tests/unittests/CMakeFiles/test_repeat_kv.dir/clean
@@ -352,12 +358,12 @@ tests/unittests/clean: tests/unittests/CMakeFiles/test_residual.dir/clean
 CMakeFiles/llmengine.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/llmengine.dir/build.make CMakeFiles/llmengine.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61 "Built target llmengine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65 "Built target llmengine"
 .PHONY : CMakeFiles/llmengine.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/llmengine.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 23
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 19
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/llmengine.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : CMakeFiles/llmengine.dir/rule
@@ -372,13 +378,39 @@ CMakeFiles/llmengine.dir/clean:
 .PHONY : CMakeFiles/llmengine.dir/clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/main.dir
+
+# All Build rule for target.
+CMakeFiles/main.dir/all: CMakeFiles/llmengine.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=66 "Built target main"
+.PHONY : CMakeFiles/main.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/main.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 20
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/main.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
+.PHONY : CMakeFiles/main.dir/rule
+
+# Convenience name for target.
+main: CMakeFiles/main.dir/rule
+.PHONY : main
+
+# clean rule for target.
+CMakeFiles/main.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/clean
+.PHONY : CMakeFiles/main.dir/clean
+
+#=============================================================================
 # Target rules for target src/weights/llama/CMakeFiles/layerweights.dir
 
 # All Build rule for target.
 src/weights/llama/CMakeFiles/layerweights.dir/all: src/utils/CMakeFiles/weightutils.dir/all
 	$(MAKE) $(MAKESILENT) -f src/weights/llama/CMakeFiles/layerweights.dir/build.make src/weights/llama/CMakeFiles/layerweights.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/weights/llama/CMakeFiles/layerweights.dir/build.make src/weights/llama/CMakeFiles/layerweights.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=33,34 "Built target layerweights"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=42 "Built target layerweights"
 .PHONY : src/weights/llama/CMakeFiles/layerweights.dir/all
 
 # Build rule for subdir invocation for target.
@@ -405,7 +437,7 @@ src/weights/llama/CMakeFiles/llamaweights.dir/all: src/weights/llama/CMakeFiles/
 src/weights/llama/CMakeFiles/llamaweights.dir/all: src/utils/CMakeFiles/weightutils.dir/all
 	$(MAKE) $(MAKESILENT) -f src/weights/llama/CMakeFiles/llamaweights.dir/build.make src/weights/llama/CMakeFiles/llamaweights.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/weights/llama/CMakeFiles/llamaweights.dir/build.make src/weights/llama/CMakeFiles/llamaweights.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=37,38 "Built target llamaweights"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=45,46 "Built target llamaweights"
 .PHONY : src/weights/llama/CMakeFiles/llamaweights.dir/all
 
 # Build rule for subdir invocation for target.
@@ -431,7 +463,7 @@ src/weights/llama/CMakeFiles/llamaweights.dir/clean:
 src/kernels/CMakeFiles/embeddingFunctor.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/embeddingFunctor.dir/build.make src/kernels/CMakeFiles/embeddingFunctor.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/embeddingFunctor.dir/build.make src/kernels/CMakeFiles/embeddingFunctor.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=26,27 "Built target embeddingFunctor"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=33,34 "Built target embeddingFunctor"
 .PHONY : src/kernels/CMakeFiles/embeddingFunctor.dir/all
 
 # Build rule for subdir invocation for target.
@@ -457,12 +489,12 @@ src/kernels/CMakeFiles/embeddingFunctor.dir/clean:
 src/kernels/CMakeFiles/rmsnorm.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/rmsnorm.dir/build.make src/kernels/CMakeFiles/rmsnorm.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/rmsnorm.dir/build.make src/kernels/CMakeFiles/rmsnorm.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=71,72 "Built target rmsnorm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=76,77,78 "Built target rmsnorm"
 .PHONY : src/kernels/CMakeFiles/rmsnorm.dir/all
 
 # Build rule for subdir invocation for target.
 src/kernels/CMakeFiles/rmsnorm.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/rmsnorm.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/kernels/CMakeFiles/rmsnorm.dir/rule
@@ -483,12 +515,12 @@ src/kernels/CMakeFiles/rmsnorm.dir/clean:
 src/kernels/CMakeFiles/cal_paddingoffset.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/cal_paddingoffset.dir/build.make src/kernels/CMakeFiles/cal_paddingoffset.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/cal_paddingoffset.dir/build.make src/kernels/CMakeFiles/cal_paddingoffset.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=19,20 "Built target cal_paddingoffset"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=22,23,24 "Built target cal_paddingoffset"
 .PHONY : src/kernels/CMakeFiles/cal_paddingoffset.dir/all
 
 # Build rule for subdir invocation for target.
 src/kernels/CMakeFiles/cal_paddingoffset.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/cal_paddingoffset.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/kernels/CMakeFiles/cal_paddingoffset.dir/rule
@@ -503,30 +535,30 @@ src/kernels/CMakeFiles/cal_paddingoffset.dir/clean:
 .PHONY : src/kernels/CMakeFiles/cal_paddingoffset.dir/clean
 
 #=============================================================================
-# Target rules for target src/kernels/CMakeFiles/build_causal_mask.dir
+# Target rules for target src/kernels/CMakeFiles/build_casual_mask.dir
 
 # All Build rule for target.
-src/kernels/CMakeFiles/build_causal_mask.dir/all:
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/depend
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=17,18 "Built target build_causal_mask"
-.PHONY : src/kernels/CMakeFiles/build_causal_mask.dir/all
+src/kernels/CMakeFiles/build_casual_mask.dir/all:
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/depend
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=20,21 "Built target build_casual_mask"
+.PHONY : src/kernels/CMakeFiles/build_casual_mask.dir/all
 
 # Build rule for subdir invocation for target.
-src/kernels/CMakeFiles/build_causal_mask.dir/rule: cmake_check_build_system
+src/kernels/CMakeFiles/build_casual_mask.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/build_causal_mask.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/build_casual_mask.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
-.PHONY : src/kernels/CMakeFiles/build_causal_mask.dir/rule
+.PHONY : src/kernels/CMakeFiles/build_casual_mask.dir/rule
 
 # Convenience name for target.
-build_causal_mask: src/kernels/CMakeFiles/build_causal_mask.dir/rule
-.PHONY : build_causal_mask
+build_casual_mask: src/kernels/CMakeFiles/build_casual_mask.dir/rule
+.PHONY : build_casual_mask
 
 # clean rule for target.
-src/kernels/CMakeFiles/build_causal_mask.dir/clean:
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_causal_mask.dir/build.make src/kernels/CMakeFiles/build_causal_mask.dir/clean
-.PHONY : src/kernels/CMakeFiles/build_causal_mask.dir/clean
+src/kernels/CMakeFiles/build_casual_mask.dir/clean:
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/build_casual_mask.dir/build.make src/kernels/CMakeFiles/build_casual_mask.dir/clean
+.PHONY : src/kernels/CMakeFiles/build_casual_mask.dir/clean
 
 #=============================================================================
 # Target rules for target src/kernels/CMakeFiles/cublasWrapper.dir
@@ -535,7 +567,7 @@ src/kernels/CMakeFiles/build_causal_mask.dir/clean:
 src/kernels/CMakeFiles/cublasWrapper.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/cublasWrapper.dir/build.make src/kernels/CMakeFiles/cublasWrapper.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/cublasWrapper.dir/build.make src/kernels/CMakeFiles/cublasWrapper.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=22,23 "Built target cublasWrapper"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=28,29 "Built target cublasWrapper"
 .PHONY : src/kernels/CMakeFiles/cublasWrapper.dir/all
 
 # Build rule for subdir invocation for target.
@@ -561,7 +593,7 @@ src/kernels/CMakeFiles/cublasWrapper.dir/clean:
 src/kernels/CMakeFiles/linear.dir/all: src/kernels/CMakeFiles/cublasWrapper.dir/all
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/linear.dir/build.make src/kernels/CMakeFiles/linear.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/linear.dir/build.make src/kernels/CMakeFiles/linear.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=35,36 "Built target linear"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=43,44 "Built target linear"
 .PHONY : src/kernels/CMakeFiles/linear.dir/all
 
 # Build rule for subdir invocation for target.
@@ -587,7 +619,7 @@ src/kernels/CMakeFiles/linear.dir/clean:
 src/kernels/CMakeFiles/qkv_bias_and_rope.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/qkv_bias_and_rope.dir/build.make src/kernels/CMakeFiles/qkv_bias_and_rope.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/qkv_bias_and_rope.dir/build.make src/kernels/CMakeFiles/qkv_bias_and_rope.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=66,67 "Built target qkv_bias_and_rope"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=71,72 "Built target qkv_bias_and_rope"
 .PHONY : src/kernels/CMakeFiles/qkv_bias_and_rope.dir/all
 
 # Build rule for subdir invocation for target.
@@ -613,12 +645,12 @@ src/kernels/CMakeFiles/qkv_bias_and_rope.dir/clean:
 src/kernels/CMakeFiles/concat_kv.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/concat_kv.dir/build.make src/kernels/CMakeFiles/concat_kv.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/concat_kv.dir/build.make src/kernels/CMakeFiles/concat_kv.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=21 "Built target concat_kv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=26,27 "Built target concat_kv"
 .PHONY : src/kernels/CMakeFiles/concat_kv.dir/all
 
 # Build rule for subdir invocation for target.
 src/kernels/CMakeFiles/concat_kv.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/concat_kv.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/kernels/CMakeFiles/concat_kv.dir/rule
@@ -639,7 +671,7 @@ src/kernels/CMakeFiles/concat_kv.dir/clean:
 src/kernels/CMakeFiles/repeat_kv.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/repeat_kv.dir/build.make src/kernels/CMakeFiles/repeat_kv.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/repeat_kv.dir/build.make src/kernels/CMakeFiles/repeat_kv.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=68,69 "Built target repeat_kv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=73,74 "Built target repeat_kv"
 .PHONY : src/kernels/CMakeFiles/repeat_kv.dir/all
 
 # Build rule for subdir invocation for target.
@@ -665,7 +697,7 @@ src/kernels/CMakeFiles/repeat_kv.dir/clean:
 src/kernels/CMakeFiles/mask_softmax.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/mask_softmax.dir/build.make src/kernels/CMakeFiles/mask_softmax.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/mask_softmax.dir/build.make src/kernels/CMakeFiles/mask_softmax.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=62,63 "Built target mask_softmax"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=67,68 "Built target mask_softmax"
 .PHONY : src/kernels/CMakeFiles/mask_softmax.dir/all
 
 # Build rule for subdir invocation for target.
@@ -691,7 +723,7 @@ src/kernels/CMakeFiles/mask_softmax.dir/clean:
 src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/build.make src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/build.make src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=31,32 "Built target fused_transpose_and_remv_pad"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=40,41 "Built target fused_transpose_and_remv_pad"
 .PHONY : src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/all
 
 # Build rule for subdir invocation for target.
@@ -717,7 +749,7 @@ src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/clean:
 src/kernels/CMakeFiles/fused_addresidual_norm.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/fused_addresidual_norm.dir/build.make src/kernels/CMakeFiles/fused_addresidual_norm.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/fused_addresidual_norm.dir/build.make src/kernels/CMakeFiles/fused_addresidual_norm.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=28,29 "Built target fused_addresidual_norm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=35,36 "Built target fused_addresidual_norm"
 .PHONY : src/kernels/CMakeFiles/fused_addresidual_norm.dir/all
 
 # Build rule for subdir invocation for target.
@@ -743,7 +775,7 @@ src/kernels/CMakeFiles/fused_addresidual_norm.dir/clean:
 src/kernels/CMakeFiles/act.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/act.dir/build.make src/kernels/CMakeFiles/act.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/act.dir/build.make src/kernels/CMakeFiles/act.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=11,12 "Built target act"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=13,14 "Built target act"
 .PHONY : src/kernels/CMakeFiles/act.dir/all
 
 # Build rule for subdir invocation for target.
@@ -763,30 +795,30 @@ src/kernels/CMakeFiles/act.dir/clean:
 .PHONY : src/kernels/CMakeFiles/act.dir/clean
 
 #=============================================================================
-# Target rules for target src/kernels/CMakeFiles/topK.dir
+# Target rules for target src/kernels/CMakeFiles/topk.dir
 
 # All Build rule for target.
-src/kernels/CMakeFiles/topK.dir/all:
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/depend
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=97,98 "Built target topK"
-.PHONY : src/kernels/CMakeFiles/topK.dir/all
+src/kernels/CMakeFiles/topk.dir/all:
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/depend
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=96,97 "Built target topk"
+.PHONY : src/kernels/CMakeFiles/topk.dir/all
 
 # Build rule for subdir invocation for target.
-src/kernels/CMakeFiles/topK.dir/rule: cmake_check_build_system
+src/kernels/CMakeFiles/topk.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/topK.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/topk.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
-.PHONY : src/kernels/CMakeFiles/topK.dir/rule
+.PHONY : src/kernels/CMakeFiles/topk.dir/rule
 
 # Convenience name for target.
-topK: src/kernels/CMakeFiles/topK.dir/rule
-.PHONY : topK
+topk: src/kernels/CMakeFiles/topk.dir/rule
+.PHONY : topk
 
 # clean rule for target.
-src/kernels/CMakeFiles/topK.dir/clean:
-	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topK.dir/build.make src/kernels/CMakeFiles/topK.dir/clean
-.PHONY : src/kernels/CMakeFiles/topK.dir/clean
+src/kernels/CMakeFiles/topk.dir/clean:
+	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/topk.dir/build.make src/kernels/CMakeFiles/topk.dir/clean
+.PHONY : src/kernels/CMakeFiles/topk.dir/clean
 
 #=============================================================================
 # Target rules for target src/kernels/CMakeFiles/fused_decoder_self_attention.dir
@@ -795,12 +827,12 @@ src/kernels/CMakeFiles/topK.dir/clean:
 src/kernels/CMakeFiles/fused_decoder_self_attention.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/fused_decoder_self_attention.dir/build.make src/kernels/CMakeFiles/fused_decoder_self_attention.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/fused_decoder_self_attention.dir/build.make src/kernels/CMakeFiles/fused_decoder_self_attention.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=30 "Built target fused_decoder_self_attention"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=37,38,39 "Built target fused_decoder_self_attention"
 .PHONY : src/kernels/CMakeFiles/fused_decoder_self_attention.dir/all
 
 # Build rule for subdir invocation for target.
 src/kernels/CMakeFiles/fused_decoder_self_attention.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/fused_decoder_self_attention.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/kernels/CMakeFiles/fused_decoder_self_attention.dir/rule
@@ -821,7 +853,7 @@ src/kernels/CMakeFiles/fused_decoder_self_attention.dir/clean:
 src/kernels/CMakeFiles/sampling.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/sampling.dir/build.make src/kernels/CMakeFiles/sampling.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/sampling.dir/build.make src/kernels/CMakeFiles/sampling.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=73,74 "Built target sampling"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=79,80 "Built target sampling"
 .PHONY : src/kernels/CMakeFiles/sampling.dir/all
 
 # Build rule for subdir invocation for target.
@@ -847,12 +879,12 @@ src/kernels/CMakeFiles/sampling.dir/clean:
 src/kernels/CMakeFiles/add_residual.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/add_residual.dir/build.make src/kernels/CMakeFiles/add_residual.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/kernels/CMakeFiles/add_residual.dir/build.make src/kernels/CMakeFiles/add_residual.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=13,14 "Built target add_residual"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=15,16,17 "Built target add_residual"
 .PHONY : src/kernels/CMakeFiles/add_residual.dir/all
 
 # Build rule for subdir invocation for target.
 src/kernels/CMakeFiles/add_residual.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/kernels/CMakeFiles/add_residual.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/kernels/CMakeFiles/add_residual.dir/rule
@@ -875,7 +907,7 @@ src/layers/ffn/CMakeFiles/Llamaffn.dir/all: src/kernels/CMakeFiles/linear.dir/al
 src/layers/ffn/CMakeFiles/Llamaffn.dir/all: src/kernels/CMakeFiles/act.dir/all
 	$(MAKE) $(MAKESILENT) -f src/layers/ffn/CMakeFiles/Llamaffn.dir/build.make src/layers/ffn/CMakeFiles/Llamaffn.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/layers/ffn/CMakeFiles/Llamaffn.dir/build.make src/layers/ffn/CMakeFiles/Llamaffn.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=6,7 "Built target Llamaffn"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=7,8 "Built target Llamaffn"
 .PHONY : src/layers/ffn/CMakeFiles/Llamaffn.dir/all
 
 # Build rule for subdir invocation for target.
@@ -907,12 +939,12 @@ src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/all: src/kernels/CMakeFiles/mas
 src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/all: src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/all
 	$(MAKE) $(MAKESILENT) -f src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/build.make src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/build.make src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=2,3 "Built target LlamaCtxAttn"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=3,4 "Built target LlamaCtxAttn"
 .PHONY : src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/all
 
 # Build rule for subdir invocation for target.
 src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 15
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/rule
@@ -930,18 +962,16 @@ src/layers/attention/CMakeFiles/LlamaCtxAttn.dir/clean:
 # Target rules for target src/layers/attention/CMakeFiles/LlamaselfAttn.dir
 
 # All Build rule for target.
-src/layers/attention/CMakeFiles/LlamaselfAttn.dir/all: src/kernels/CMakeFiles/cublasWrapper.dir/all
-src/layers/attention/CMakeFiles/LlamaselfAttn.dir/all: src/kernels/CMakeFiles/linear.dir/all
 src/layers/attention/CMakeFiles/LlamaselfAttn.dir/all: src/kernels/CMakeFiles/qkv_bias_and_rope.dir/all
 src/layers/attention/CMakeFiles/LlamaselfAttn.dir/all: src/kernels/CMakeFiles/fused_decoder_self_attention.dir/all
 	$(MAKE) $(MAKESILENT) -f src/layers/attention/CMakeFiles/LlamaselfAttn.dir/build.make src/layers/attention/CMakeFiles/LlamaselfAttn.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/layers/attention/CMakeFiles/LlamaselfAttn.dir/build.make src/layers/attention/CMakeFiles/LlamaselfAttn.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=8,9 "Built target LlamaselfAttn"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=9,10 "Built target LlamaselfAttn"
 .PHONY : src/layers/attention/CMakeFiles/LlamaselfAttn.dir/all
 
 # Build rule for subdir invocation for target.
 src/layers/attention/CMakeFiles/LlamaselfAttn.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 9
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 7
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/layers/attention/CMakeFiles/LlamaselfAttn.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/layers/attention/CMakeFiles/LlamaselfAttn.dir/rule
@@ -963,6 +993,7 @@ src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/weights/llama/CMakeFi
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/weights/llama/CMakeFiles/llamaweights.dir/all
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/kernels/CMakeFiles/rmsnorm.dir/all
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/kernels/CMakeFiles/cal_paddingoffset.dir/all
+src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/kernels/CMakeFiles/build_casual_mask.dir/all
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/kernels/CMakeFiles/cublasWrapper.dir/all
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/kernels/CMakeFiles/linear.dir/all
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/kernels/CMakeFiles/qkv_bias_and_rope.dir/all
@@ -978,12 +1009,12 @@ src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/layers/attention/CMak
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all: src/utils/CMakeFiles/weightutils.dir/all
 	$(MAKE) $(MAKESILENT) -f src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/build.make src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/build.make src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=4,5 "Built target LlamaCtxdecoder"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=5,6 "Built target LlamaCtxdecoder"
 .PHONY : src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all
 
 # Build rule for subdir invocation for target.
 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 35
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 41
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/layers/decoder/CMakeFiles/LlamaCtxdecoder.dir/rule
@@ -1016,12 +1047,12 @@ src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/all: src/layers/attention/CMa
 src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/all: src/utils/CMakeFiles/weightutils.dir/all
 	$(MAKE) $(MAKESILENT) -f src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/build.make src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/build.make src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=10 "Built target Llamaselfdecoder"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=11,12 "Built target Llamaselfdecoder"
 .PHONY : src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/all
 
 # Build rule for subdir invocation for target.
 src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 26
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 31
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/rule
@@ -1042,12 +1073,12 @@ src/layers/decoder/CMakeFiles/Llamaselfdecoder.dir/clean:
 src/utils/CMakeFiles/weightutils.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/weightutils.dir/build.make src/utils/CMakeFiles/weightutils.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/weightutils.dir/build.make src/utils/CMakeFiles/weightutils.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=99,100 "Built target weightutils"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=98,99,100 "Built target weightutils"
 .PHONY : src/utils/CMakeFiles/weightutils.dir/all
 
 # Build rule for subdir invocation for target.
 src/utils/CMakeFiles/weightutils.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/utils/CMakeFiles/weightutils.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/utils/CMakeFiles/weightutils.dir/rule
@@ -1070,6 +1101,7 @@ src/models/CMakeFiles/Llama.dir/all: src/weights/llama/CMakeFiles/llamaweights.d
 src/models/CMakeFiles/Llama.dir/all: src/kernels/CMakeFiles/embeddingFunctor.dir/all
 src/models/CMakeFiles/Llama.dir/all: src/kernels/CMakeFiles/rmsnorm.dir/all
 src/models/CMakeFiles/Llama.dir/all: src/kernels/CMakeFiles/cal_paddingoffset.dir/all
+src/models/CMakeFiles/Llama.dir/all: src/kernels/CMakeFiles/build_casual_mask.dir/all
 src/models/CMakeFiles/Llama.dir/all: src/kernels/CMakeFiles/cublasWrapper.dir/all
 src/models/CMakeFiles/Llama.dir/all: src/kernels/CMakeFiles/linear.dir/all
 src/models/CMakeFiles/Llama.dir/all: src/kernels/CMakeFiles/qkv_bias_and_rope.dir/all
@@ -1089,12 +1121,12 @@ src/models/CMakeFiles/Llama.dir/all: src/layers/decoder/CMakeFiles/Llamaselfdeco
 src/models/CMakeFiles/Llama.dir/all: src/utils/CMakeFiles/weightutils.dir/all
 	$(MAKE) $(MAKESILENT) -f src/models/CMakeFiles/Llama.dir/build.make src/models/CMakeFiles/Llama.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/models/CMakeFiles/Llama.dir/build.make src/models/CMakeFiles/Llama.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=1 "Built target Llama"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=1,2 "Built target Llama"
 .PHONY : src/models/CMakeFiles/Llama.dir/all
 
 # Build rule for subdir invocation for target.
 src/models/CMakeFiles/Llama.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 42
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 52
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/models/CMakeFiles/Llama.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : src/models/CMakeFiles/Llama.dir/rule
@@ -1115,12 +1147,12 @@ src/models/CMakeFiles/Llama.dir/clean:
 tests/unittests/CMakeFiles/embedding.dir/all: src/kernels/CMakeFiles/embeddingFunctor.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/embedding.dir/build.make tests/unittests/CMakeFiles/embedding.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/embedding.dir/build.make tests/unittests/CMakeFiles/embedding.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=24,25 "Built target embedding"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=32 "Built target embedding"
 .PHONY : tests/unittests/CMakeFiles/embedding.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/embedding.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/embedding.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/embedding.dir/rule
@@ -1141,12 +1173,12 @@ tests/unittests/CMakeFiles/embedding.dir/clean:
 tests/unittests/CMakeFiles/rms_norm.dir/all: src/kernels/CMakeFiles/rmsnorm.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/rms_norm.dir/build.make tests/unittests/CMakeFiles/rms_norm.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/rms_norm.dir/build.make tests/unittests/CMakeFiles/rms_norm.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=70 "Built target rms_norm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=75 "Built target rms_norm"
 .PHONY : tests/unittests/CMakeFiles/rms_norm.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/rms_norm.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/rms_norm.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/rms_norm.dir/rule
@@ -1167,12 +1199,12 @@ tests/unittests/CMakeFiles/rms_norm.dir/clean:
 tests/unittests/CMakeFiles/paddingoffset.dir/all: src/kernels/CMakeFiles/cal_paddingoffset.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/paddingoffset.dir/build.make tests/unittests/CMakeFiles/paddingoffset.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/paddingoffset.dir/build.make tests/unittests/CMakeFiles/paddingoffset.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=64,65 "Built target paddingoffset"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=69,70 "Built target paddingoffset"
 .PHONY : tests/unittests/CMakeFiles/paddingoffset.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/paddingoffset.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/paddingoffset.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/paddingoffset.dir/rule
@@ -1187,30 +1219,30 @@ tests/unittests/CMakeFiles/paddingoffset.dir/clean:
 .PHONY : tests/unittests/CMakeFiles/paddingoffset.dir/clean
 
 #=============================================================================
-# Target rules for target tests/unittests/CMakeFiles/test_causal_mask.dir
+# Target rules for target tests/unittests/CMakeFiles/causalmask.dir
 
 # All Build rule for target.
-tests/unittests/CMakeFiles/test_causal_mask.dir/all: src/kernels/CMakeFiles/build_causal_mask.dir/all
-	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/depend
-	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=77,78 "Built target test_causal_mask"
-.PHONY : tests/unittests/CMakeFiles/test_causal_mask.dir/all
+tests/unittests/CMakeFiles/causalmask.dir/all: src/kernels/CMakeFiles/build_casual_mask.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/depend
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=25 "Built target causalmask"
+.PHONY : tests/unittests/CMakeFiles/causalmask.dir/all
 
 # Build rule for subdir invocation for target.
-tests/unittests/CMakeFiles/test_causal_mask.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_causal_mask.dir/all
+tests/unittests/CMakeFiles/causalmask.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/causalmask.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
-.PHONY : tests/unittests/CMakeFiles/test_causal_mask.dir/rule
+.PHONY : tests/unittests/CMakeFiles/causalmask.dir/rule
 
 # Convenience name for target.
-test_causal_mask: tests/unittests/CMakeFiles/test_causal_mask.dir/rule
-.PHONY : test_causal_mask
+causalmask: tests/unittests/CMakeFiles/causalmask.dir/rule
+.PHONY : causalmask
 
 # clean rule for target.
-tests/unittests/CMakeFiles/test_causal_mask.dir/clean:
-	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_causal_mask.dir/build.make tests/unittests/CMakeFiles/test_causal_mask.dir/clean
-.PHONY : tests/unittests/CMakeFiles/test_causal_mask.dir/clean
+tests/unittests/CMakeFiles/causalmask.dir/clean:
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/causalmask.dir/build.make tests/unittests/CMakeFiles/causalmask.dir/clean
+.PHONY : tests/unittests/CMakeFiles/causalmask.dir/clean
 
 #=============================================================================
 # Target rules for target tests/unittests/CMakeFiles/testlinear.dir
@@ -1220,12 +1252,12 @@ tests/unittests/CMakeFiles/testlinear.dir/all: src/kernels/CMakeFiles/cublasWrap
 tests/unittests/CMakeFiles/testlinear.dir/all: src/kernels/CMakeFiles/linear.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/testlinear.dir/build.make tests/unittests/CMakeFiles/testlinear.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/testlinear.dir/build.make tests/unittests/CMakeFiles/testlinear.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=95,96 "Built target testlinear"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=95 "Built target testlinear"
 .PHONY : tests/unittests/CMakeFiles/testlinear.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/testlinear.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/testlinear.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/testlinear.dir/rule
@@ -1240,18 +1272,71 @@ tests/unittests/CMakeFiles/testlinear.dir/clean:
 .PHONY : tests/unittests/CMakeFiles/testlinear.dir/clean
 
 #=============================================================================
+# Target rules for target tests/unittests/CMakeFiles/debug.dir
+
+# All Build rule for target.
+tests/unittests/CMakeFiles/debug.dir/all:
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/depend
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=30,31 "Built target debug"
+.PHONY : tests/unittests/CMakeFiles/debug.dir/all
+
+# Build rule for subdir invocation for target.
+tests/unittests/CMakeFiles/debug.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/debug.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
+.PHONY : tests/unittests/CMakeFiles/debug.dir/rule
+
+# Convenience name for target.
+debug: tests/unittests/CMakeFiles/debug.dir/rule
+.PHONY : debug
+
+# clean rule for target.
+tests/unittests/CMakeFiles/debug.dir/clean:
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/debug.dir/build.make tests/unittests/CMakeFiles/debug.dir/clean
+.PHONY : tests/unittests/CMakeFiles/debug.dir/clean
+
+#=============================================================================
+# Target rules for target tests/unittests/CMakeFiles/bmm.dir
+
+# All Build rule for target.
+tests/unittests/CMakeFiles/bmm.dir/all: src/kernels/CMakeFiles/cublasWrapper.dir/all
+tests/unittests/CMakeFiles/bmm.dir/all: src/kernels/CMakeFiles/linear.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/depend
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=19 "Built target bmm"
+.PHONY : tests/unittests/CMakeFiles/bmm.dir/all
+
+# Build rule for subdir invocation for target.
+tests/unittests/CMakeFiles/bmm.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 5
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/bmm.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
+.PHONY : tests/unittests/CMakeFiles/bmm.dir/rule
+
+# Convenience name for target.
+bmm: tests/unittests/CMakeFiles/bmm.dir/rule
+.PHONY : bmm
+
+# clean rule for target.
+tests/unittests/CMakeFiles/bmm.dir/clean:
+	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/bmm.dir/build.make tests/unittests/CMakeFiles/bmm.dir/clean
+.PHONY : tests/unittests/CMakeFiles/bmm.dir/clean
+
+#=============================================================================
 # Target rules for target tests/unittests/CMakeFiles/biasRope.dir
 
 # All Build rule for target.
 tests/unittests/CMakeFiles/biasRope.dir/all: src/kernels/CMakeFiles/qkv_bias_and_rope.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/biasRope.dir/build.make tests/unittests/CMakeFiles/biasRope.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/biasRope.dir/build.make tests/unittests/CMakeFiles/biasRope.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=15,16 "Built target biasRope"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=18 "Built target biasRope"
 .PHONY : tests/unittests/CMakeFiles/biasRope.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/biasRope.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/biasRope.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/biasRope.dir/rule
@@ -1272,7 +1357,7 @@ tests/unittests/CMakeFiles/biasRope.dir/clean:
 tests/unittests/CMakeFiles/test_concat_kv.dir/all: src/kernels/CMakeFiles/concat_kv.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_concat_kv.dir/build.make tests/unittests/CMakeFiles/test_concat_kv.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_concat_kv.dir/build.make tests/unittests/CMakeFiles/test_concat_kv.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=79,80 "Built target test_concat_kv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=82 "Built target test_concat_kv"
 .PHONY : tests/unittests/CMakeFiles/test_concat_kv.dir/all
 
 # Build rule for subdir invocation for target.
@@ -1298,7 +1383,7 @@ tests/unittests/CMakeFiles/test_concat_kv.dir/clean:
 tests/unittests/CMakeFiles/test_repeat_kv.dir/all: src/kernels/CMakeFiles/repeat_kv.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_repeat_kv.dir/build.make tests/unittests/CMakeFiles/test_repeat_kv.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_repeat_kv.dir/build.make tests/unittests/CMakeFiles/test_repeat_kv.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=88,89 "Built target test_repeat_kv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=89,90 "Built target test_repeat_kv"
 .PHONY : tests/unittests/CMakeFiles/test_repeat_kv.dir/all
 
 # Build rule for subdir invocation for target.
@@ -1324,12 +1409,12 @@ tests/unittests/CMakeFiles/test_repeat_kv.dir/clean:
 tests/unittests/CMakeFiles/test_mask_softmax.dir/all: src/kernels/CMakeFiles/mask_softmax.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_mask_softmax.dir/build.make tests/unittests/CMakeFiles/test_mask_softmax.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_mask_softmax.dir/build.make tests/unittests/CMakeFiles/test_mask_softmax.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=86,87 "Built target test_mask_softmax"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=88 "Built target test_mask_softmax"
 .PHONY : tests/unittests/CMakeFiles/test_mask_softmax.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/test_mask_softmax.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_mask_softmax.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/test_mask_softmax.dir/rule
@@ -1350,7 +1435,7 @@ tests/unittests/CMakeFiles/test_mask_softmax.dir/clean:
 tests/unittests/CMakeFiles/test_fused_trans_remv_pad.dir/all: src/kernels/CMakeFiles/fused_transpose_and_remv_pad.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_fused_trans_remv_pad.dir/build.make tests/unittests/CMakeFiles/test_fused_trans_remv_pad.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_fused_trans_remv_pad.dir/build.make tests/unittests/CMakeFiles/test_fused_trans_remv_pad.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=84,85 "Built target test_fused_trans_remv_pad"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=86,87 "Built target test_fused_trans_remv_pad"
 .PHONY : tests/unittests/CMakeFiles/test_fused_trans_remv_pad.dir/all
 
 # Build rule for subdir invocation for target.
@@ -1376,12 +1461,12 @@ tests/unittests/CMakeFiles/test_fused_trans_remv_pad.dir/clean:
 tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/all: src/kernels/CMakeFiles/fused_addresidual_norm.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/build.make tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/build.make tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=81 "Built target test_fused_addresidual_norm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=83,84 "Built target test_fused_addresidual_norm"
 .PHONY : tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/rule
@@ -1402,12 +1487,12 @@ tests/unittests/CMakeFiles/test_fused_addresidual_norm.dir/clean:
 tests/unittests/CMakeFiles/test_act.dir/all: src/kernels/CMakeFiles/act.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_act.dir/build.make tests/unittests/CMakeFiles/test_act.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_act.dir/build.make tests/unittests/CMakeFiles/test_act.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=75,76 "Built target test_act"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=81 "Built target test_act"
 .PHONY : tests/unittests/CMakeFiles/test_act.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/test_act.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_act.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/test_act.dir/rule
@@ -1425,7 +1510,7 @@ tests/unittests/CMakeFiles/test_act.dir/clean:
 # Target rules for target tests/unittests/CMakeFiles/test_topk.dir
 
 # All Build rule for target.
-tests/unittests/CMakeFiles/test_topk.dir/all: src/kernels/CMakeFiles/topK.dir/all
+tests/unittests/CMakeFiles/test_topk.dir/all: src/kernels/CMakeFiles/topk.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_topk.dir/build.make tests/unittests/CMakeFiles/test_topk.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_topk.dir/build.make tests/unittests/CMakeFiles/test_topk.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=93,94 "Built target test_topk"
@@ -1454,12 +1539,12 @@ tests/unittests/CMakeFiles/test_topk.dir/clean:
 tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/all: src/kernels/CMakeFiles/fused_decoder_self_attention.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/build.make tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/build.make tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=82,83 "Built target test_fused_decoder_attention"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=85 "Built target test_fused_decoder_attention"
 .PHONY : tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/rule
@@ -1480,12 +1565,12 @@ tests/unittests/CMakeFiles/test_fused_decoder_attention.dir/clean:
 tests/unittests/CMakeFiles/test_sampling.dir/all: src/kernels/CMakeFiles/sampling.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_sampling.dir/build.make tests/unittests/CMakeFiles/test_sampling.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_sampling.dir/build.make tests/unittests/CMakeFiles/test_sampling.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=91,92 "Built target test_sampling"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=92 "Built target test_sampling"
 .PHONY : tests/unittests/CMakeFiles/test_sampling.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/test_sampling.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_sampling.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/test_sampling.dir/rule
@@ -1506,12 +1591,12 @@ tests/unittests/CMakeFiles/test_sampling.dir/clean:
 tests/unittests/CMakeFiles/test_residual.dir/all: src/kernels/CMakeFiles/add_residual.dir/all
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_residual.dir/build.make tests/unittests/CMakeFiles/test_residual.dir/depend
 	$(MAKE) $(MAKESILENT) -f tests/unittests/CMakeFiles/test_residual.dir/build.make tests/unittests/CMakeFiles/test_residual.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=90 "Built target test_residual"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=91 "Built target test_residual"
 .PHONY : tests/unittests/CMakeFiles/test_residual.dir/all
 
 # Build rule for subdir invocation for target.
 tests/unittests/CMakeFiles/test_residual.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unittests/CMakeFiles/test_residual.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles 0
 .PHONY : tests/unittests/CMakeFiles/test_residual.dir/rule

@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../lib/libfused_decoder_self_attention.a"
   "../../lib/libfused_decoder_self_attention.pdb"
+  "CMakeFiles/fused_decoder_self_attention.dir/cmake_device_link.o"
   "CMakeFiles/fused_decoder_self_attention.dir/fused_decoder_self_attention.cu.o"
   "CMakeFiles/fused_decoder_self_attention.dir/fused_decoder_self_attention.cu.o.d"
 )

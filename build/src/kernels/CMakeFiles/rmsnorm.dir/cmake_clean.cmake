@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../lib/librmsnorm.a"
   "../../lib/librmsnorm.pdb"
+  "CMakeFiles/rmsnorm.dir/cmake_device_link.o"
   "CMakeFiles/rmsnorm.dir/rmsnorm_kernel.cu.o"
   "CMakeFiles/rmsnorm.dir/rmsnorm_kernel.cu.o.d"
 )

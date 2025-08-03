@@ -10,6 +10,7 @@
 #include "src/models/llama/llama_params.h"
 #include "src/utils/macro.h"
 
+// (RussWong)note: 这里面的数据成员都是只存在于attention layer，而不像finished，seq lengths这种贯穿整个过程
 template<typename T>
 class LLaMASelfAttentionLayer {
 private:
@@ -17,7 +18,7 @@ private:
     const int head_num;
     const int head_size;
     const int hidden_units;
-    const int q_head_per_kv;
+    const int q_head_per_kv; //for GQA and MQA
     const int kv_head_num;
     float scale;
     // this params are only saw in llama and are unchanged 
@@ -26,7 +27,8 @@ private:
     BaseAllocator* allocator;
     // for linear and batchgemm
     cublasWrapper* cublas_wrapper;
-    // forward推理所需的中间buffer
+
+    // intermedia buffer
     TensorWrapper<T>* qkv_buf     = nullptr; // for qkv linear output and rope input/output
     TensorWrapper<T>* mha_output = nullptr; // mha output, then invoke a linear to attention output
 
@@ -38,14 +40,11 @@ public:
                                cudaStream_t stream,
                                cublasWrapper* cublas_wrapper,
                                BaseAllocator* allocator);
-    
+    // (RussWong)note: private data member can only be accessed by member function
     LLaMAAttentionStaticParams& GetAttnStaticParams(){
         return attn_static_params;
     }
-    
     void allocForForward(LLaMAAttentionDynParams& params);
-    
     void freeBuf();
-    
     void forward(TensorMap& inputs, TensorMap& outputs, LLaMAattentionWeights<T>& weights, LLaMAAttentionDynParams& params);
 };

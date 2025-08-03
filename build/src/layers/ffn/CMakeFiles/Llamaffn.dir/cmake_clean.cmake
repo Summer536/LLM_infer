@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../../lib/libLlamaffn.a"
   "../../../lib/libLlamaffn.pdb"
+  "CMakeFiles/Llamaffn.dir/cmake_device_link.o"
   "CMakeFiles/Llamaffn.dir/ffn.cpp.o"
   "CMakeFiles/Llamaffn.dir/ffn.cpp.o.d"
 )

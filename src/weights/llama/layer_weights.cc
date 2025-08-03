@@ -1,9 +1,8 @@
 #include <random>
 #include "src/weights/llama/layer_weights.h"
 #include "src/utils/macro.h"
-
 template<typename T>
-LlamaLayerWeight<T>::LlamaLayerWeight(int     head_num,  
+LlamaLayerWeight<T>::LlamaLayerWeight(int     head_num,
                                     int     kv_head_num,
                                     int     head_size,
                                     int     inter_size,
@@ -16,30 +15,21 @@ LlamaLayerWeight<T>::LlamaLayerWeight(int     head_num,
     inter_size(inter_size),
     weight_type(weight_type),
     attn_bias(attn_bias)
-{   
-    // 1.attn_norm_weight只需要对(/src/weights/llama/norm_weights.h) T* gamma;给分配好，初始化一下即可！
-    CHECK(cudaMalloc((void**)&attn_norm_weight.gamma, sizeof(T) * hidden_units)); //shape is [hidden_units]
-
-    // 2.FFN里面的RMSNorm
-    CHECK(cudaMalloc((void**)&ffn_norm_weight.gamma, sizeof(T) * hidden_units));  //shape is [hidden_units]
-    
-    // 3.self_attn_weight是一个base weight，需要对(/src/weights/llama/base_weights.h) std::vector<int> shape;   T* data;    WeightType type;    T* bias;四个量进行初始化！ 
-    // 3.1 qkv的weights 以下上三行分别是对WeightType type、 std::vector<int> shape 、  T* data三个进行初始化
+{
+    // init weights structure and cudamalloc for weights
+    CHECK(cudaMalloc((void**)&attn_norm_weight.gamma, sizeof(T) * hidden_units));
+    CHECK(cudaMalloc((void**)&ffn_norm_weight.gamma, sizeof(T) * hidden_units));
     self_attn_weight.qkv.type = weight_type;
     self_attn_weight.qkv.shape = {(head_num + 2 * kv_head_num) * head_size, hidden_units};
-    CHECK(cudaMalloc((void**)&self_attn_weight.qkv.data, sizeof(T) * hidden_units * (head_num + 2 * kv_head_num) * head_size)); //shape is [(head_num + 2 * kv_head_num) * head_size, hidden_units]
-    // 3.2 output的weights
+    CHECK(cudaMalloc((void**)&self_attn_weight.qkv.data, sizeof(T) * hidden_units * (head_num + 2 * kv_head_num) * head_size));
     self_attn_weight.output.type = weight_type;
     self_attn_weight.output.shape = {hidden_units, hidden_units};
     CHECK(cudaMalloc((void**)&self_attn_weight.output.data, sizeof(T) * hidden_units * hidden_units));
-    // 如果有bias，需要对bias进行分配
     if (attn_bias) {
-        CHECK(cudaMalloc((void**)&self_attn_weight.qkv.bias, sizeof(T) * (head_num + 2 * kv_head_num) * head_size));  //这个bias的shape是weights的最后一个维度
-        CHECK(cudaMalloc((void**)&self_attn_weight.output.bias, sizeof(T) * hidden_units)); //这个bias的shape是weights的最后一个维度
+        CHECK(cudaMalloc((void**)&self_attn_weight.qkv.bias, sizeof(T) * (head_num + 2 * kv_head_num) * head_size));
+        CHECK(cudaMalloc((void**)&self_attn_weight.output.bias, sizeof(T) * hidden_units));
     }
-
-    // 4.ffn_weight是一个base weight，需要对(/src/weights/llama/base_weights.h) std::vector<int> shape;   T* data;    WeightType type;    T* bias;四个量进行初始化！
-    //   这里的gate和up是合在一起的
+    // (RussWong)note: we concat gate linear weight and up linear weight to one weight tensor for performance improvement
     ffn_weight.gateAndup.type = weight_type;
     ffn_weight.down.type = weight_type;
     ffn_weight.gateAndup.shape = {2 * inter_size, hidden_units};
@@ -49,18 +39,11 @@ LlamaLayerWeight<T>::LlamaLayerWeight(int     head_num,
     // CHECK(cudaMalloc((void**)&ffn_weight.up.data, hidden_units * inter_size));
     CHECK(cudaMalloc((void**)&ffn_weight.down.data, sizeof(T) * hidden_units * inter_size));
 }
-
-////////////////////////////////////////////////////给这些weights的数据进行初始化，并且把它拷到GPU上面去//////////////////////////////////////////////////////////////////////////
-///////////////////////////////////因为这些weights是从huggingface上面下载下来的，需要将这些weights先读取进来(cpu)上，然后再把它拷到GPU上面去参与我们实际的计算。//////////////////////////
-
-//////////////////////////下面定义了两个loadWeights的函数，一个是从huggingface上面下载下来的weights，一个是从本地加载的weights。//////////////////////////
-
-/////////////这个函数是load从huggingface上面下载下来的weights//////////////////////////
+// (RussWong)note: weight from HF is always half type, and if we want run fp32 inference, we should convert half weight to fp32 weight in tools/weights_convert.py 
+// (RussWong)note: shape and data of ffn weight downloaded form HF are transposed, so we should carefully declare shape here
 template<typename T>
-void LlamaLayerWeight<T>::loadWeights(std::string weight_path, WeightType weight_type) 
-{   
-    //loadWeightFromBin是一个struct结构(/src/utils/weight_utils.cu)，它里面有一个静态函数internalFunc：它接收的参数为：1.在构造函数分配好的buffer的指针 2.一系列的weights的shape 3.它们的路径
-    //<T, float>：我们需要用的类型是T,python转好的类型是float的，因此这里做一个转换
+void LlamaLayerWeight<T>::loadWeights(std::string weight_path, WeightType weight_type) // weighttype参数比较多余
+{
     loadWeightFromBin<T, float>::internalFunc(attn_norm_weight.gamma, {hidden_units}, weight_path + ".input_layernorm.weight.bin");
     loadWeightFromBin<T, float>::internalFunc(ffn_norm_weight.gamma, {hidden_units}, weight_path + ".post_attention_layernorm.weight.bin");
 
@@ -72,17 +55,32 @@ void LlamaLayerWeight<T>::loadWeights(std::string weight_path, WeightType weight
     if (attn_bias) {//TODO
         loadWeightFromBin<T, float>::internalFunc(self_attn_weight.qkv.bias, {(head_num + 2 * kv_head_num) * head_size}, weight_path + ".attention.wqkv.bias.bin");
         loadWeightFromBin<T, float>::internalFunc(self_attn_weight.output.bias, {head_num *  head_size}, weight_path + ".attention.wo.bias.bin");
-    } else { //如果没有bias 则设置为空指针。这个bias都是需要根据特别模型的特别写的！像llama2就没有bias
+    } else {
     	self_attn_weight.qkv.bias = nullptr;
 	self_attn_weight.output.bias = nullptr;
 	ffn_weight.down.bias = nullptr;
     } 
+    // (RussWong)note: below code lines can be enabled when I dont support qkvbiasandrope and fusedbiasaddresidual's bias nullptr case.
+    //T* d_dummy_qkv_bias;
+    //GPUMalloc(&d_dummy_qkv_bias, sizeof(T) * (head_num + 2 * kv_head_num) * head_size);
+    //cudaMemset((void*)d_dummy_qkv_bias, 0, sizeof(T) * (head_num + 2 * kv_head_num) * head_size);
+    //self_attn_weight.qkv.bias = (T*)d_dummy_qkv_bias;
+
+    //T* d_dummy_output_bias;
+    //GPUMalloc(&d_dummy_output_bias, sizeof(T) * head_num *  head_size);
+    //cudaMemset((void*)d_dummy_output_bias, 0, sizeof(T) * head_num *  head_size);
+    //self_attn_weight.output.bias = (T*)d_dummy_output_bias;
+
+    //T* d_dummy_ffn_down_bias;
+    //GPUMalloc(&d_dummy_ffn_down_bias, sizeof(T) * hidden_units);
+    //cudaMemset((void*)d_dummy_ffn_down_bias, 0, sizeof(T) * hidden_units);
+    //ffn_weight.down.bias = (T*)d_dummy_ffn_down_bias;
 }
 
-/////////////这个函数是load本地加载的weights(仅用于测试代码正确与否以及测试性能，不关注精度)//////////////////////////
+// (RussWong)note: load dummy model/weight API, is used to the time when you want test inference performance only
 template<typename T>
 void LlamaLayerWeight<T>::loadWeights() 
-{   //创建一些虚假的数据weight以供测试
+{
     T* d_dummy_attn_norm_weight;
     T* d_dummy_ffn_norm_weight;
     T* d_dummy_qkv_weights;
@@ -115,7 +113,6 @@ void LlamaLayerWeight<T>::loadWeights()
     T* h_dummy_ffn_gate_up = (T*)malloc(sizeof(T) * hidden_units * 2 * inter_size);
     // T* h_dummy_ffn_up = (T*)malloc(sizeof(T) * hidden_units * inter_size);
 
-    //初始化cpu上的值
     for (int i = 0; i < hidden_units; i++){
         h_dummy_attn_norm_weight[i] = (T)(rand() % 100 / (float)100000);
         h_dummy_ffn_norm_weight[i] = (T)(rand() % 100 / (float)100000);
@@ -138,7 +135,6 @@ void LlamaLayerWeight<T>::loadWeights()
     for (int i = 0; i < hidden_units * (head_num + 2 * kv_head_num) * head_size; i++) {
         h_dummy_qkv_weights[i] = (T)(rand() % 100 / (float)100000);
     }
-
     CHECK(cudaMemcpy(d_dummy_attn_norm_weight, h_dummy_attn_norm_weight, sizeof(T) * hidden_units, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_dummy_ffn_norm_weight, h_dummy_ffn_norm_weight, sizeof(T) * hidden_units, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_dummy_qkv_weights, h_dummy_qkv_weights, sizeof(T) * hidden_units * (head_num + 2 * kv_head_num) * head_size, cudaMemcpyHostToDevice));
@@ -149,6 +145,7 @@ void LlamaLayerWeight<T>::loadWeights()
     CHECK(cudaMemcpy(d_dummy_ffn_down_bias, h_dummy_ffn_down_bias, sizeof(T) * hidden_units, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_dummy_ffn_gate_up, h_dummy_ffn_gate_up, sizeof(T) * hidden_units * 2 * inter_size, cudaMemcpyHostToDevice));
     // CHECK(cudaMemcpy(d_dummy_ffn_up, h_dummy_ffn_up, sizeof(T) * hidden_units * inter_size, cudaMemcpyHostToDevice));
+    // before kernel launch, the ptr is always void*, when luanching kernel, ptr type will be cast to float* or T*
     attn_norm_weight.gamma = d_dummy_attn_norm_weight;
     ffn_norm_weight.gamma = d_dummy_ffn_norm_weight;
     self_attn_weight.qkv.data = d_dummy_qkv_weights;
@@ -161,9 +158,8 @@ void LlamaLayerWeight<T>::loadWeights()
     ffn_weight.down.bias = d_dummy_ffn_down_bias;
 }
 
-////////////////////////////////////////////////////weights的buffer free//////////////////////////////////////////////////////////////////////////
 template<typename T>
-void freeWeights(BaseWeight<T>& weights) 
+void freeWeights(BaseWeight<T>& weights)
 {
     cudaFree(weights.data);
     if(weights.bias != nullptr) {
@@ -174,7 +170,7 @@ void freeWeights(BaseWeight<T>& weights)
     weights.bias = nullptr;
 }
 template<typename T>
-LlamaLayerWeight<T>::~LlamaLayerWeight() 
+LlamaLayerWeight<T>::~LlamaLayerWeight()
 {
     // free norm weights ptr
     cudaFree(attn_norm_weight.gamma);

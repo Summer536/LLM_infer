@@ -92,7 +92,7 @@ test_topk_EXTERNAL_OBJECTS =
 
 bin/test_topk: tests/unittests/CMakeFiles/test_topk.dir/test_topk.cu.o
 bin/test_topk: tests/unittests/CMakeFiles/test_topk.dir/build.make
-bin/test_topk: lib/libtopK.a
+bin/test_topk: lib/libtopk.a
 bin/test_topk: tests/unittests/CMakeFiles/test_topk.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/yqgao/LLM_inference/LLM_interview/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CUDA executable ../../bin/test_topk"
 	cd /home/yqgao/LLM_inference/LLM_interview/build/tests/unittests && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_topk.dir/link.txt --verbose=$(VERBOSE)

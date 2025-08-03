@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../../lib/libcublasWrapper.a"
   "../../lib/libcublasWrapper.pdb"
+  "CMakeFiles/cublasWrapper.dir/cmake_device_link.o"
   "CMakeFiles/cublasWrapper.dir/cublas_utils.cc.o"
   "CMakeFiles/cublasWrapper.dir/cublas_utils.cc.o.d"
 )
